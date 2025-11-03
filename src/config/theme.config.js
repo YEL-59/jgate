@@ -6,9 +6,10 @@
 export const theme = {
   colors: {
     sidebar: {
-      background: '#301960', // Dark purple/indigo
+      background: '#282870', // Dark purple/indigo (matching design)
       foreground: '#FFFFFF',
-      active: '#FFD700', // Yellow for active state
+      active: '#FFC107', // Yellow for active state (matching design)
+      border: 'rgba(255, 255, 255, 0.1)',
     },
     dashboard: {
       background: '#F8F8F8',
