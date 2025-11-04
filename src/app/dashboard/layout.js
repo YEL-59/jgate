@@ -18,7 +18,7 @@ export default function DashboardLayout({ children }) {
       <main style={{
         flex: 1,
         backgroundColor: theme.colors.dashboard.background,
-        padding: isMobile ? '60px 16px 16px' : '20px',
+        padding: isMobile ? '60px 16px 16px' : '32px 24px',
         overflow: 'auto',
         width: '100%',
         minHeight: '100vh',

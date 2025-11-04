@@ -25,12 +25,12 @@ export const dashboardService = {
       },
       totalScenes: {
         value: 3482,
-        change: -16.7,
-        isPositive: false,
+        change: 15.7,
+        isPositive: true,
       },
       totalAuditions: {
         value: 8921,
-        change: -2.3,
+        change: -2.4,
         isPositive: false,
       },
     };

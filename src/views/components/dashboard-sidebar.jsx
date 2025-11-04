@@ -94,7 +94,7 @@ export function DashboardSidebar() {
       <div style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         {menuItems.map((item) => {
           const Icon = iconMap[item.icon] || LayoutDashboard;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
 
           return (
             <Link
@@ -112,6 +112,12 @@ export function DashboardSidebar() {
                 color: isActive ? theme.colors.sidebar.background : theme.colors.sidebar.foreground,
                 fontWeight: isActive ? '600' : '400',
                 transition: 'all 0.2s ease',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                if (isMobile) {
+                  setIsOpen(false);
+                }
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {

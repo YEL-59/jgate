@@ -32,13 +32,13 @@ export const menuItems = [
   {
     id: MenuItem.PROJECTS_SCENES,
     title: 'Projects & Scenes',
-    href: '/dashboard/products', // Using existing route for now
+    href: '/dashboard/projects',
     icon: 'Film',
   },
   {
     id: MenuItem.SUB_ADMIN_ROLES,
     title: 'Sub-Admin Roles',
-    href: '/dashboard/settings', // Using existing route for now
+    href: '/dashboard/sub-admin',
     icon: 'UserCog',
   },
   {
@@ -50,7 +50,7 @@ export const menuItems = [
   {
     id: MenuItem.STATIC_CONTENT,
     title: 'Static Content',
-    href: '/dashboard/reports', // Using existing route for now
+    href: '/dashboard/static-content',
     icon: 'FileText',
   },
 ];
