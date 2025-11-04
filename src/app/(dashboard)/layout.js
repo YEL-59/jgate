@@ -1,22 +1,27 @@
+"use client";
+
+import { DashboardSidebar } from "@/views/components/dashboard-sidebar";
+import { theme } from "@/config/theme.config";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export default function DashboardLayout({ children }) {
+  const isMobile = useIsMobile();
+
   return (
     <div style={{ 
       minHeight: '100vh',
-      backgroundColor: '#F8F8F8',
-      display: 'flex'
+      backgroundColor: theme.colors.dashboard.background,
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
     }}>
-      <div style={{
-        width: '250px',
-        backgroundColor: '#301960',
-        color: 'white',
-        padding: '20px'
-      }}>
-        <h2 style={{ color: 'white', margin: 0 }}>Sidebar</h2>
-      </div>
+      <DashboardSidebar />
       <main style={{
         flex: 1,
-        backgroundColor: '#F8F8F8',
-        padding: '20px'
+        backgroundColor: theme.colors.dashboard.background,
+        padding: isMobile ? '60px 16px 16px' : '32px 24px',
+        overflow: 'auto',
+        width: '100%',
+        minHeight: '100vh',
       }}>
         {children}
       </main>
