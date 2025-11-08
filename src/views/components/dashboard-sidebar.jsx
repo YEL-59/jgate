@@ -94,7 +94,10 @@ export function DashboardSidebar() {
       <div style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         {menuItems.map((item) => {
           const Icon = iconMap[item.icon] || LayoutDashboard;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          // For Dashboard, only match exact path. For other routes, match exact or child routes
+          const isActive = item.href === '/dashboard'
+            ? pathname === '/dashboard' || pathname === '/dashboard/'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
 
           return (
             <Link
