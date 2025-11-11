@@ -6,6 +6,7 @@ import { ProjectSearch } from "@/views/projects/components/project-search";
 import { ProjectTable } from "@/views/projects/components/project-table";
 import { SceneTable } from "@/views/projects/components/scene-table";
 import { ProjectDetailsModal } from "@/views/projects/components/project-details-modal";
+import { EditProjectModal } from "@/views/projects/components/edit-project-modal";
 import { SceneDetailsModal } from "@/views/projects/components/scene-details-modal";
 import { projectController } from "@/controllers/project.controller";
 
@@ -20,6 +21,7 @@ export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedScene, setSelectedScene] = useState(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSceneModalOpen, setIsSceneModalOpen] = useState(false);
 
   const tabs = [
@@ -88,8 +90,39 @@ export default function ProjectsPage() {
   };
 
   const handleEditProject = (projectId) => {
-    console.log(`Edit project ${projectId}`);
-    // In a real app, navigate to edit page
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setSelectedProject(project);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleSaveProject = async (projectId, updatedData) => {
+    try {
+      // Update the project in the state
+      setProjects((prev) =>
+        prev.map((project) =>
+          project.id === projectId
+            ? { ...project, ...updatedData }
+            : project
+        )
+      );
+      
+      // Update filtered projects as well
+      setFilteredProjects((prev) =>
+        prev.map((project) =>
+          project.id === projectId
+            ? { ...project, ...updatedData }
+            : project
+        )
+      );
+      
+      // In a real app, call API to update project
+      console.log(`Project ${projectId} updated:`, updatedData);
+    } catch (error) {
+      console.error('Failed to save project:', error);
+      throw error;
+    }
   };
 
   const handleDeleteProject = (projectId) => {
@@ -190,6 +223,14 @@ export default function ProjectsPage() {
         project={selectedProject}
         open={isProjectModalOpen}
         onOpenChange={setIsProjectModalOpen}
+      />
+
+      {/* Edit Project Modal */}
+      <EditProjectModal
+        project={selectedProject}
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        onSave={handleSaveProject}
       />
 
       {/* Scene Details Modal */}
