@@ -17,6 +17,8 @@ import {
 import { menuItems } from "@/models/menu.model";
 import { theme } from "@/config/theme.config";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLogout } from "@/services/auth/auth";
+import { CloudCog } from "lucide-react";
 
 // Icon mapping
 const iconMap = {
@@ -41,9 +43,15 @@ export function DashboardSidebar() {
     }
   }, [pathname, isMobile]);
 
-  const handleLogout = () => {
-    // Add logout logic here
-    router.push('/login');
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token")
+    const res = await useLogout(token)
+    console.log("chape backend:",res)
+    if (res.success) {
+      router.push('/login');
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+    }
   };
 
   const toggleSidebar = () => {

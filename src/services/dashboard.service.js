@@ -3,37 +3,25 @@
  * Handles data fetching for dashboard metrics and charts
  */
 
+import { useDashboard } from "./dashboard/dashboard";
+
 /**
- * Mock data service - Replace with actual API calls
+ * Mock data service - Replace with actual API calls here i call the api useDashboard
+ * and pass the token to it
  */
+
+
 export const dashboardService = {
   /**
    * Get dashboard metrics
    */
   async getMetrics() {
     // Simulate API call
-    return {
-      totalUsers: {
-        value: 1247,
-        change: 12.5,
-        isPositive: true,
-      },
-      totalProjects: {
-        value: 216,
-        change: 8.3,
-        isPositive: true,
-      },
-      totalScenes: {
-        value: 3482,
-        change: 15.7,
-        isPositive: true,
-      },
-      totalAuditions: {
-        value: 8921,
-        change: -2.4,
-        isPositive: false,
-      },
-    };
+
+    const token = localStorage.getItem("token")
+    const res = await useDashboard(token)
+    console.log(res)
+    return res
   },
 
   /**
