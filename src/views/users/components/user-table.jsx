@@ -59,7 +59,7 @@ export function UserTable({ users, onToggleStatus, onApprove, onReject }) {
                   </span>
                 </td>
               )}
-              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{user.created}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{user.created_at}</td>
               <td style={{ padding: '12px' }}>
                 {user.status !== undefined ? (
                   // Toggle switch for regular users
