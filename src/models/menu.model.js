@@ -10,6 +10,8 @@ export const MenuItem = {
   SUB_ADMIN_ROLES: 'sub-admin-roles',
   NOTIFICATIONS: 'notifications',
   STATIC_CONTENT: 'static-content',
+  CATEGORY: 'category',
+  MOVIE_LIBRARY: 'movie-library',
 };
 
 /**
@@ -52,6 +54,18 @@ export const menuItems = [
     title: 'Static Content',
     href: '/dashboard/static-content',
     icon: 'FileText',
+  },
+  {
+    id: MenuItem.CATEGORY,
+    title: 'Category',
+    href: '/dashboard/category',
+    icon: 'CloudCog',
+  },
+  {
+    id: MenuItem.MOVIE_LIBRARY,
+    title: 'Movie Library',
+    href: '/dashboard/movie-library',
+    icon: 'Movie',
   },
 ];
 
