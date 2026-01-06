@@ -13,12 +13,12 @@ import {
   LogOut,
   Menu,
   X,
+  CloudCog,
 } from "lucide-react";
 import { menuItems } from "@/models/menu.model";
 import { theme } from "@/config/theme.config";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLogout } from "@/services/auth/auth";
-import { CloudCog } from "lucide-react";
 
 // Icon mapping
 const iconMap = {
@@ -28,6 +28,8 @@ const iconMap = {
   UserCog,
   Bell,
   FileText,
+  CloudCog,
+  Movie: Film, // Map 'Movie' to 'Film' icon
 };
 
 export function DashboardSidebar() {
