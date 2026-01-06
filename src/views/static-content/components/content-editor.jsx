@@ -1,37 +1,176 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save } from "lucide-react";
+import { 
+  Save, 
+  Bold, 
+  Italic, 
+  Underline, 
+  List, 
+  ListOrdered, 
+  Heading1, 
+  Heading2, 
+  Heading3,
+  Quote,
+  Undo,
+  Redo,
+  Link as LinkIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import UnderlineExtension from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
+
+const MenuBar = ({ editor }) => {
+  if (!editor) {
+    return null;
+  }
+
+  const toggleLink = () => {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+
+    if (url === null) {
+      return;
+    }
+
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  };
+
+  const buttons = [
+    { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: 'bold', title: 'Bold' },
+    { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: 'italic', title: 'Italic' },
+    { icon: Underline, action: () => editor.chain().focus().toggleUnderline().run(), active: 'underline', title: 'Underline' },
+    { type: 'divider' },
+    { icon: Heading1, action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), active: { heading: { level: 1 } }, title: 'H1' },
+    { icon: Heading2, action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: { heading: { level: 2 } }, title: 'H2' },
+    { icon: Heading3, action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), active: { heading: { level: 3 } }, title: 'H3' },
+    { type: 'divider' },
+    { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: 'bulletList', title: 'Bullet List' },
+    { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: 'orderedList', title: 'Ordered List' },
+    { icon: Quote, action: () => editor.chain().focus().toggleBlockquote().run(), active: 'blockquote', title: 'Quote' },
+    { type: 'divider' },
+    { icon: AlignLeft, action: () => editor.chain().focus().setTextAlign('left').run(), active: { textAlign: 'left' }, title: 'Align Left' },
+    { icon: AlignCenter, action: () => editor.chain().focus().setTextAlign('center').run(), active: { textAlign: 'center' }, title: 'Align Center' },
+    { icon: AlignRight, action: () => editor.chain().focus().setTextAlign('right').run(), active: { textAlign: 'right' }, title: 'Align Right' },
+    { type: 'divider' },
+    { icon: LinkIcon, action: toggleLink, active: 'link', title: 'Link' },
+    { type: 'divider' },
+    { icon: Undo, action: () => editor.chain().focus().undo().run(), disabled: !editor.can().undo(), title: 'Undo' },
+    { icon: Redo, action: () => editor.chain().focus().redo().run(), disabled: !editor.can().redo(), title: 'Redo' },
+  ];
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '4px',
+      padding: '8px',
+      border: '1px solid #e5e5e5',
+      borderBottom: 'none',
+      borderRadius: '8px 8px 0 0',
+      backgroundColor: '#F9FAFB',
+    }}>
+      {buttons.map((btn, i) => {
+        if (btn.type === 'divider') {
+          return <div key={i} style={{ width: '1px', backgroundColor: '#e5e5e5', margin: '4px 4px' }} />;
+        }
+        const Icon = btn.icon;
+        const isActive = btn.active ? (typeof btn.active === 'string' ? editor.isActive(btn.active) : editor.isActive(btn.active)) : false;
+        
+        return (
+          <button
+            key={i}
+            onClick={btn.action}
+            disabled={btn.disabled}
+            title={btn.title}
+            type="button"
+            style={{
+              padding: '6px',
+              borderRadius: '4px',
+              border: 'none',
+              backgroundColor: isActive ? '#f3f4f6' : 'transparent',
+              color: isActive ? '#301960' : '#4b5563',
+              cursor: btn.disabled ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+              opacity: btn.disabled ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive && !btn.disabled) {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive && !btn.disabled) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
+          >
+            <Icon size={18} />
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
 export function ContentEditor({ page, onSave, saving }) {
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      UnderlineExtension,
+      Link.configure({
+        openOnClick: false,
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Placeholder.configure({
+        placeholder: 'Write something amazing...',
+      }),
+    ],
+    immediatelyRender: false,
+    content: '',
+    onUpdate: ({ editor }) => {
+      setHasUnsavedChanges(true);
+    },
+    editorProps: {
+      attributes: {
+        style: 'min-height: 400px; padding: 16px; outline: none; font-size: 15px; line-height: 1.6; color: #1a1a1a;',
+      },
+    },
+  });
+
   useEffect(() => {
-    if (page) {
+    if (page && editor) {
       setTitle(page.title || '');
-      setContent(page.content || '');
+      editor.commands.setContent(page.content || '');
       setHasUnsavedChanges(false);
     }
-  }, [page]);
-
-  const handleTitleChange = (e) => {
-    setTitle(e.target.value);
-    setHasUnsavedChanges(true);
-  };
-
-  const handleContentChange = (e) => {
-    setContent(e.target.value);
-    setHasUnsavedChanges(true);
-  };
+  }, [page, editor]);
 
   const handleSave = () => {
-    if (!page) return;
+    if (!page || !editor) return;
     
     if (onSave) {
-      onSave(page.id, title, content);
+      onSave(page.id, title, editor.getHTML());
       setHasUnsavedChanges(false);
     }
   };
@@ -74,7 +213,7 @@ export function ContentEditor({ page, onSave, saving }) {
           readOnly
           style={{
             width: '100%',
-            padding: '10px 12px',
+            padding: '12px',
             borderRadius: '8px',
             border: '1px solid #e5e5e5',
             fontSize: '14px',
@@ -98,29 +237,30 @@ export function ContentEditor({ page, onSave, saving }) {
           Content
         </label>
         
-        <textarea
-          value={content}
-          onChange={handleContentChange}
-          style={{
-            width: '100%',
-            minHeight: '350px',
-            padding: '12px',
-            border: '1px solid #e5e5e5',
-            borderRadius: '8px',
-            fontSize: '14px',
-            lineHeight: '1.6',
-            outline: 'none',
-            backgroundColor: 'white',
-            resize: 'vertical',
-            transition: 'border-color 0.2s',
-          }}
-          onFocus={(e) => {
-            e.currentTarget.style.borderColor = '#301960';
-          }}
-          onBlur={(e) => {
-            e.currentTarget.style.borderColor = '#e5e5e5';
-          }}
-        />
+        <div style={{
+          border: '1px solid #e5e5e5',
+          borderRadius: '8px',
+          overflow: 'hidden',
+        }}>
+          <MenuBar editor={editor} />
+          <style>{`
+            .ProseMirror p.is-editor-empty:first-child::before {
+              content: attr(data-placeholder);
+              float: left;
+              color: #adb5bd;
+              pointer-events: none;
+              height: 0;
+            }
+            .ProseMirror ul { padding-left: 20px; list-style-type: disc; }
+            .ProseMirror ol { padding-left: 20px; list-style-type: decimal; }
+            .ProseMirror h1 { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; }
+            .ProseMirror h2 { font-size: 1.5em; font-weight: bold; margin-bottom: 0.5em; }
+            .ProseMirror h3 { font-size: 1.17em; font-weight: bold; margin-bottom: 0.5em; }
+            .ProseMirror blockquote { border-left: 3px solid #e5e5e5; padding-left: 1rem; color: #666; font-style: italic; }
+            .ProseMirror a { color: #301960; text-decoration: underline; cursor: pointer; }
+          `}</style>
+          <EditorContent editor={editor} />
+        </div>
 
         <p style={{ 
           fontSize: '12px', 
@@ -128,7 +268,7 @@ export function ContentEditor({ page, onSave, saving }) {
           marginTop: '8px',
           margin: '8px 0 0 0'
         }}>
-          Enter the content for this page. Changes are saved when you click &apos;Save Content & Publish&apos;.
+          Use the toolbar to format your content. Changes are saved when you click &apos;Save Content & Publish&apos;.
         </p>
       </div>
 
@@ -150,17 +290,17 @@ export function ContentEditor({ page, onSave, saving }) {
       {/* Save Button */}
       <Button
         onClick={handleSave}
-        disabled={saving}
+        disabled={saving || !hasUnsavedChanges}
         style={{
           width: '100%',
           padding: '12px 24px',
           borderRadius: '8px',
           border: 'none',
-          backgroundColor: saving ? '#9CA3AF' : '#301960',
-          color: 'white',
+          backgroundColor: saving ? '#9CA3AF' : (hasUnsavedChanges ? '#301960' : '#E5E7EB'),
+          color: (saving || !hasUnsavedChanges) ? '#4B5563' : 'white',
           fontSize: '14px',
           fontWeight: '600',
-          cursor: saving ? 'not-allowed' : 'pointer',
+          cursor: (saving || !hasUnsavedChanges) ? 'not-allowed' : 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

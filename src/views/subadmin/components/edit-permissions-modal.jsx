@@ -16,21 +16,25 @@ export function EditPermissionsModal({ subAdmin, open, onOpenChange, permissions
 
   useEffect(() => {
     if (subAdmin && subAdmin.permissions) {
-      setSelectedPermissions([...subAdmin.permissions]);
+      // subAdmin.permissions is [{id, permission}]
+      setSelectedPermissions(subAdmin.permissions.map(p => p.permission));
     }
-  }, [subAdmin]);
+  }, [subAdmin, open]);
 
-  const handlePermissionChange = (permissionId, checked) => {
+  const handlePermissionChange = (permissionName, checked) => {
     if (checked) {
-      setSelectedPermissions(prev => [...prev, permissionId]);
+      setSelectedPermissions(prev => [...prev, permissionName]);
     } else {
-      setSelectedPermissions(prev => prev.filter(p => p !== permissionId));
+      setSelectedPermissions(prev => prev.filter(p => p !== permissionName));
     }
   };
 
   const handleSubmit = () => {
     if (onSubmit && subAdmin) {
-      onSubmit(subAdmin.id, selectedPermissions);
+      // The API expects the role ID for permission updates.
+      // We'll use the ID of the first role associated with this sub-admin.
+      const roleId = (subAdmin.roles && subAdmin.roles.length > 0) ? subAdmin.roles[0].id : subAdmin.id;
+      onSubmit(roleId, selectedPermissions);
     }
     onOpenChange(false);
   };
@@ -50,7 +54,6 @@ export function EditPermissionsModal({ subAdmin, open, onOpenChange, permissions
         </DialogHeader>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
-          {/* Permissions */}
           <div>
             <label style={{ 
               fontSize: '14px', 
@@ -83,8 +86,8 @@ export function EditPermissionsModal({ subAdmin, open, onOpenChange, permissions
                 >
                   <input
                     type="checkbox"
-                    checked={selectedPermissions.includes(permission.id)}
-                    onChange={(e) => handlePermissionChange(permission.id, e.target.checked)}
+                    checked={selectedPermissions.includes(permission.label)}
+                    onChange={(e) => handlePermissionChange(permission.label, e.target.checked)}
                     style={{
                       width: '18px',
                       height: '18px',
@@ -103,31 +106,18 @@ export function EditPermissionsModal({ subAdmin, open, onOpenChange, permissions
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: '1px solid #e5e5e5',
-              backgroundColor: 'white',
-              color: '#1a1a1a',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-            }}
+            className="hover:bg-gray-100"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: '#301960',
-              color: 'white',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
+              backgroundColor: '#FFC107',
+              color: '#1a1a1a',
+              fontWeight: '600'
             }}
+            className="hover:bg-yellow-500"
           >
             Save Changes
           </Button>

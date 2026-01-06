@@ -12,41 +12,56 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) {
+export function AddSubAdminModal({ open, onOpenChange, permissions, roles, onSubmit }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: '',
+    password: '',
+    roles: [],
     permissions: [],
   });
 
-  const handlePermissionChange = (permissionId, checked) => {
+  const handleRoleChange = (roleId, checked) => {
     if (checked) {
       setFormData(prev => ({
         ...prev,
-        permissions: [...prev.permissions, permissionId],
+        roles: [...prev.roles, roleId],
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        permissions: prev.permissions.filter(p => p !== permissionId),
+        roles: prev.roles.filter(id => id !== roleId),
+      }));
+    }
+  };
+
+  const handlePermissionChange = (permissionLabel, checked) => {
+    if (checked) {
+      setFormData(prev => ({
+        ...prev,
+        permissions: [...prev.permissions, permissionLabel],
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        permissions: prev.permissions.filter(p => p !== permissionLabel),
       }));
     }
   };
 
   const handleSubmit = () => {
-    if (!formData.name || !formData.email || !formData.role) {
-      alert('Please fill in all required fields');
+    if (!formData.name || !formData.email || !formData.password || formData.roles.length === 0) {
+      alert('Please fill in all required fields (Name, Email, Password, and at least one Role)');
       return;
     }
     onSubmit(formData);
     // Reset form
-    setFormData({ name: '', email: '', role: '', permissions: [] });
+    setFormData({ name: '', email: '', password: '', roles: [], permissions: [] });
     onOpenChange(false);
   };
 
   const handleClose = () => {
-    setFormData({ name: '', email: '', role: '', permissions: [] });
+    setFormData({ name: '', email: '', password: '', roles: [], permissions: [] });
     onOpenChange(false);
   };
 
@@ -58,20 +73,14 @@ export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) 
             Add New Sub-Admin
           </DialogTitle>
           <DialogDescription style={{ fontSize: '14px', color: '#666666', marginTop: '8px' }}>
-            Create a new admin account with specific permissions.
+            Create a new admin account with specific roles and permissions.
           </DialogDescription>
         </DialogHeader>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
           {/* Name */}
           <div>
-            <label style={{ 
-              fontSize: '14px', 
-              fontWeight: '600', 
-              color: '#1a1a1a',
-              marginBottom: '8px',
-              display: 'block'
-            }}>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginBottom: '8px', display: 'block' }}>
               Name <span style={{ color: '#EF4444' }}>*</span>
             </label>
             <input
@@ -86,26 +95,13 @@ export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) 
                 border: '1px solid #e5e5e5',
                 fontSize: '14px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#301960';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#e5e5e5';
               }}
             />
           </div>
 
           {/* Email */}
           <div>
-            <label style={{ 
-              fontSize: '14px', 
-              fontWeight: '600', 
-              color: '#1a1a1a',
-              marginBottom: '8px',
-              display: 'block'
-            }}>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginBottom: '8px', display: 'block' }}>
               Email <span style={{ color: '#EF4444' }}>*</span>
             </label>
             <input
@@ -120,33 +116,20 @@ export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) 
                 border: '1px solid #e5e5e5',
                 fontSize: '14px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#301960';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#e5e5e5';
               }}
             />
           </div>
 
-          {/* Role */}
+          {/* Password */}
           <div>
-            <label style={{ 
-              fontSize: '14px', 
-              fontWeight: '600', 
-              color: '#1a1a1a',
-              marginBottom: '8px',
-              display: 'block'
-            }}>
-              Role/Position <span style={{ color: '#EF4444' }}>*</span>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginBottom: '8px', display: 'block' }}>
+              Password <span style={{ color: '#EF4444' }}>*</span>
             </label>
             <input
-              type="text"
-              value={formData.role}
-              onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-              placeholder="e.g., Content Moderator"
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+              placeholder="Enter password"
               style={{
                 width: '100%',
                 padding: '10px 12px',
@@ -154,26 +137,40 @@ export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) 
                 border: '1px solid #e5e5e5',
                 fontSize: '14px',
                 outline: 'none',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#301960';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#e5e5e5';
               }}
             />
           </div>
 
+          {/* Roles */}
+          <div>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginBottom: '12px', display: 'block' }}>
+              Roles <span style={{ color: '#EF4444' }}>*</span>
+            </label>
+            <div style={{ 
+              display: 'flex', 
+              flexWrap: 'wrap',
+              gap: '12px',
+              padding: '12px',
+              backgroundColor: '#F9FAFB',
+              borderRadius: '8px',
+            }}>
+              {roles && roles.map((role) => (
+                <label key={role.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: '#1a1a1a' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.roles.includes(role.id)}
+                    onChange={(e) => handleRoleChange(role.id, e.target.checked)}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#FFC107' }}
+                  />
+                  <span>{role.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Permissions */}
           <div>
-            <label style={{ 
-              fontSize: '14px', 
-              fontWeight: '600', 
-              color: '#1a1a1a',
-              marginBottom: '12px',
-              display: 'block'
-            }}>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#1a1a1a', marginBottom: '12px', display: 'block' }}>
               Permissions
             </label>
             <div style={{ 
@@ -187,25 +184,13 @@ export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) 
               {permissions.map((permission) => (
                 <label
                   key={permission.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#1a1a1a',
-                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: '#1a1a1a' }}
                 >
                   <input
                     type="checkbox"
-                    checked={formData.permissions.includes(permission.id)}
-                    onChange={(e) => handlePermissionChange(permission.id, e.target.checked)}
-                    style={{
-                      width: '18px',
-                      height: '18px',
-                      cursor: 'pointer',
-                      accentColor: '#301960',
-                    }}
+                    checked={formData.permissions.includes(permission.label)}
+                    onChange={(e) => handlePermissionChange(permission.label, e.target.checked)}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#FFC107' }}
                   />
                   <span>{permission.label}</span>
                 </label>
@@ -215,37 +200,20 @@ export function AddSubAdminModal({ open, onOpenChange, permissions, onSubmit }) 
         </div>
 
         <DialogFooter style={{ marginTop: '8px' }}>
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: '1px solid #e5e5e5',
-              backgroundColor: 'white',
-              color: '#1a1a1a',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-            }}
-          >
+          <Button variant="outline" onClick={handleClose} className="hover:bg-gray-100">
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              border: 'none',
               backgroundColor: '#FFC107',
               color: '#1a1a1a',
-              fontSize: '14px',
               fontWeight: '600',
-              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
             }}
+            className="hover:bg-yellow-500"
           >
             <Plus size={16} />
             Add Sub-Admin
