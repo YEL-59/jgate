@@ -7,6 +7,7 @@ import { CategoryModal } from "@/views/category/components/category-modal";
 import { DeleteCategoryModal } from "@/views/category/components/delete-category-modal";
 import { categoryController } from "@/controllers/category.controller";
 import { toast } from "sonner";
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 export default function CategoryContent() {
   const [categories, setCategories] = useState([]);
@@ -86,11 +87,7 @@ export default function CategoryContent() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ color: '#666666' }}>Loading...</div>
-      </div>
-    );
+    return <PageLoader message="Fetching categories..." />;
   }
 
   return (

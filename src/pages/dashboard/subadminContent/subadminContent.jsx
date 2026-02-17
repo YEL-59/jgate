@@ -9,6 +9,7 @@ import { EditRolesModal } from "@/views/subadmin/components/edit-roles-modal";
 import { DeleteConfirmationModal } from "@/views/subadmin/components/delete-confirmation-modal";
 import { subAdminController } from "@/controllers/subadmin.controller";
 import { toast } from "sonner"; // Assuming sonner is used for toast notifications
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 export default function SubAdminContent() {
   const [subAdmins, setSubAdmins] = useState([]);
@@ -136,11 +137,7 @@ export default function SubAdminContent() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ color: '#666666' }}>Loading...</div>
-      </div>
-    );
+    return <PageLoader message="Fetching sub-admin data..." />;
   }
 
   return (

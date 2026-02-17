@@ -1,6 +1,7 @@
 "use client"
 import DashboardClient from "@/pages/dashboard/dashboardClient/dashboardHome"
 import { useDashboard } from "@/services/dashboard/dashboard"
+import { PageLoader } from "@/components/ui/loading-spinner";
 import { useEffect, useState } from "react";
 
 const DashboardPage = () => {
@@ -28,11 +29,14 @@ const DashboardPage = () => {
 
     fetchDashboard();
   }, []);
-  console.log(data)
+
+  if (loading) {
+    return <PageLoader message="Loading dashboard overview..." />;
+  }
+
   return (
     <DashboardClient data={data} />
-
-  )
-}
+  );
+};
 
 export default DashboardPage

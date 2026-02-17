@@ -5,6 +5,7 @@ import { useProject } from "@/services/dashboard/project";
 import { useUser } from "@/services/dashboard/user";
 import { CloudCog } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 const ProjectPage = () => {
   const [data, setData] = useState(null);
@@ -35,6 +36,10 @@ const ProjectPage = () => {
     fetchDashboardproject();
   }, []);
   console.log("projectatable data", data)
+  if (loading) {
+    return <PageLoader message="Fetching projects..." />;
+  }
+
   return (
     <ProjectsClient projects={data} loading={loading} />
   );

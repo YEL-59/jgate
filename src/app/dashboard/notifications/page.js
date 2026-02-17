@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { NotificationForm } from "@/views/notifications/components/notification-form";
 import { TemplatesList } from "@/views/notifications/components/templates-list";
 import { notificationController } from "@/controllers/notification.controller";
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 export default function NotificationsPage() {
   const [recipientGroups, setRecipientGroups] = useState([]);
@@ -38,11 +39,7 @@ export default function NotificationsPage() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ color: '#666666' }}>Loading...</div>
-      </div>
-    );
+    return <PageLoader message="Fetching notification data..." />;
   }
 
   return (
@@ -58,8 +55,8 @@ export default function NotificationsPage() {
       </div>
 
       {/* Main Content - Two Column Layout */}
-      <div style={{ 
-        display: 'grid', 
+      <div style={{
+        display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))',
         gap: '24px',
         alignItems: 'flex-start',

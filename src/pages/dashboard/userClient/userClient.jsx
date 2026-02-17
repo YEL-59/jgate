@@ -6,6 +6,7 @@ import { UserSearch } from "@/views/users/components/user-search";
 import { UserTable } from "@/views/users/components/user-table";
 import { userController } from "@/controllers/user.controller";
 import { updateUserStatus, getPendingDirectors, approveDirector, rejectDirector } from "@/services/dashboard/user";
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 export default function UserClient({ users, loading }) {
   const [activeTab, setActiveTab] = useState('all');
@@ -138,11 +139,7 @@ export default function UserClient({ users, loading }) {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ color: '#666666' }}>Loading users...</div>
-      </div>
-    );
+    return <PageLoader message="Fetching user management data..." />;
   }
 
   return (

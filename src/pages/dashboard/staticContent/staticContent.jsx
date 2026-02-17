@@ -5,6 +5,7 @@ import { PagesList } from "@/views/static-content/components/pages-list";
 import { ContentEditor } from "@/views/static-content/components/content-editor";
 import { updateStaticContent, useStaticContent } from "@/services/dashboard/staticcontent";
 import { toast } from "sonner";
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 // Define the available page types as constant menu items
 const PAGE_TYPES = [
@@ -112,11 +113,7 @@ export default function StaticContent({ staticContent: initialStaticContent, loa
   };
 
   if (loading && !pageContent) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ color: '#666666' }}>Loading...</div>
-      </div>
-    );
+    return <PageLoader message="Fetching static content..." />;
   }
 
   return (

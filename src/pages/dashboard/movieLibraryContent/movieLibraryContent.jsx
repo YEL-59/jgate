@@ -8,6 +8,7 @@ import { DeleteMovieModal } from "@/views/movie-library/components/delete-movie-
 import { VideoPlayerModal } from "@/views/movie-library/components/video-player-modal";
 import { movieController } from "@/controllers/movie.controller";
 import { toast } from "sonner";
+import { PageLoader } from "@/components/ui/loading-spinner";
 
 export default function MovieLibraryContent() {
   const [movies, setMovies] = useState([]);
@@ -99,11 +100,7 @@ export default function MovieLibraryContent() {
   );
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div style={{ color: '#666666' }}>Loading...</div>
-      </div>
-    );
+    return <PageLoader message="Fetching movie library..." />;
   }
 
   return (
