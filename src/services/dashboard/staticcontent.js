@@ -21,6 +21,23 @@ export const useStaticContent = async (token) => {
     }
 }
 
+export const getStaticContentByType = async (token, type) => {
+    try {
+        const res = await fetch(`https://jgate2000.thesyndicates.team/api/static-page?type=${type}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { "Authorization": `Bearer ${token}` } : {})
+            }
+        })
+        const result = await res.json()
+        return result
+    } catch (error) {
+        console.error("Failed to fetch static content by type:", error)
+        return { success: false, message: error.message }
+    }
+}
+
 export const updateStaticContent = async (token, type, data) => {
     try {
         const res = await fetch("https://jgate2000.thesyndicates.team/api/static-page", {

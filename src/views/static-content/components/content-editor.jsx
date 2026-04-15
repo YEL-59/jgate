@@ -129,7 +129,6 @@ const MenuBar = ({ editor }) => {
 };
 
 export function ContentEditor({ page, onSave, saving }) {
-  const [title, setTitle] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const editor = useEditor({
@@ -153,16 +152,18 @@ export function ContentEditor({ page, onSave, saving }) {
     },
     editorProps: {
       attributes: {
-        style: 'min-height: 400px; padding: 16px; outline: none; font-size: 15px; line-height: 1.6; color: #1a1a1a;',
+        style: 'min-height: 400px; max-height: 500px; overflow-y: auto; padding: 16px; outline: none; font-size: 15px; line-height: 1.6; color: #1a1a1a;',
+        class: 'custom-scrollbar',
       },
     },
   });
 
   useEffect(() => {
     if (page && editor) {
-      setTitle(page.title || '');
+      // Avoid firing onUpdate when we programmatically set content
       editor.commands.setContent(page.content || '');
-      setHasUnsavedChanges(false);
+      // Use setTimeout to avoid synchronous setState warning during render cycle evaluation
+      setTimeout(() => setHasUnsavedChanges(false), 0);
     }
   }, [page, editor]);
 
@@ -170,7 +171,7 @@ export function ContentEditor({ page, onSave, saving }) {
     if (!page || !editor) return;
     
     if (onSave) {
-      onSave(page.id, title, editor.getHTML());
+      onSave(page.id, page.title || '', editor.getHTML());
       setHasUnsavedChanges(false);
     }
   };
@@ -209,7 +210,7 @@ export function ContentEditor({ page, onSave, saving }) {
         </label>
         <input
           type="text"
-          value={title}
+          value={page.title || ''}
           readOnly
           style={{
             width: '100%',
@@ -258,6 +259,21 @@ export function ContentEditor({ page, onSave, saving }) {
             .ProseMirror h3 { font-size: 1.17em; font-weight: bold; margin-bottom: 0.5em; }
             .ProseMirror blockquote { border-left: 3px solid #e5e5e5; padding-left: 1rem; color: #666; font-style: italic; }
             .ProseMirror a { color: #301960; text-decoration: underline; cursor: pointer; }
+
+            .custom-scrollbar::-webkit-scrollbar {
+              width: 8px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+              background: #F9FAFB;
+              border-left: 1px solid #e5e5e5;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+              background: #d1d5db;
+              border-radius: 4px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+              background: #9ca3af;
+            }
           `}</style>
           <EditorContent editor={editor} />
         </div>

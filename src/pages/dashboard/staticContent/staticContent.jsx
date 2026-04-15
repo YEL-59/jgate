@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { PagesList } from "@/views/static-content/components/pages-list";
 import { ContentEditor } from "@/views/static-content/components/content-editor";
-import { updateStaticContent, useStaticContent } from "@/services/dashboard/staticcontent";
+import { FaqHelpManager } from "@/views/static-content/components/faq-help-manager";
+import { ContactUsEditor } from "@/views/static-content/components/contact-us-editor";
+import { updateStaticContent, getStaticContentByType } from "@/services/dashboard/staticcontent";
 import { toast } from "sonner";
 import { PageLoader } from "@/components/ui/loading-spinner";
 
 // Define the available page types as constant menu items
 const PAGE_TYPES = [
-    { id: 'about_us', title: 'About Us' },
+    // { id: 'about_us', title: 'About Us' },
     { id: 'terms_of_service', title: 'Terms of Service' },
     { id: 'privacy_policy', title: 'Privacy Policy' },
     { id: 'faq', title: 'Frequently Asked Questions' },
@@ -21,59 +23,42 @@ export default function StaticContent({ staticContent: initialStaticContent, loa
   const [selectedPageId, setSelectedPageId] = useState(PAGE_TYPES[0].id);
   const [pageContent, setPageContent] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [staticContent, setStaticContent] = useState(initialStaticContent || []);
   const [loading, setLoading] = useState(initialLoading || false);
 
-  const fetchData = async () => {
+  const fetchContentByType = async (type) => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await useStaticContent(token);
-      if (res?.success) {
-        setStaticContent(res.data || []);
+      const res = await getStaticContentByType(token, type);
+      if (res?.success && res?.data) {
+        setPageContent({
+          ...res.data,
+          id: type,
+        });
+      } else {
+        setPageContent({
+          id: type,
+          type: type,
+          title: PAGE_TYPES.find(p => p.id === type)?.title || '',
+          content: ''
+        });
       }
     } catch (error) {
       console.error("Failed to fetch static content:", error);
+      setPageContent({
+        id: type,
+        type: type,
+        title: PAGE_TYPES.find(p => p.id === type)?.title || '',
+        content: ''
+      });
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!initialStaticContent) {
-      fetchData();
-    }
-  }, []);
-
-  // When selectedPageId changes, find the existing content for that type from the API props
-  // or default to empty if not found.
-  useEffect(() => {
-    // staticContent is an array of page objects from API
-    // We look for one that matches the current selectedPageId (which is the 'type' in DB usually, or mapped)
-    // The user says response has 'type': 'privacy_policy'.
-    // So we filter `staticContent` by `type`.
-    
-    // Default structure for editor
-    let currentData = {
-        id: selectedPageId, // used for key/tracking
-        type: selectedPageId,
-        title: PAGE_TYPES.find(p => p.id === selectedPageId)?.title || '',
-        content: ''
-    };
-
-    if (staticContent && Array.isArray(staticContent)) {
-        const found = staticContent.find(item => item.type === selectedPageId);
-        if (found) {
-            currentData = {
-                ...currentData,
-                title: found.title || currentData.title,
-                content: found.content || ''
-            };
-        }
-    }
-    setPageContent(currentData);
-  }, [selectedPageId, staticContent]);
-
+    fetchContentByType(selectedPageId);
+  }, [selectedPageId]);
 
 
   const handlePageSelect = (pageId) => {
@@ -91,16 +76,6 @@ export default function StaticContent({ staticContent: initialStaticContent, loa
       
       if (res?.success) {
           toast.success("Content saved successfully!");
-          // Update local state with the new data
-          setStaticContent(prev => {
-              const index = prev.findIndex(item => item.type === selectedPageId);
-              if (index !== -1) {
-                  const updated = [...prev];
-                  updated[index] = res.data;
-                  return updated;
-              }
-              return [...prev, res.data];
-          });
       } else {
           toast.error(res?.message || "Failed to save content.");
       }
@@ -142,12 +117,21 @@ export default function StaticContent({ staticContent: initialStaticContent, loa
           onPageSelect={handlePageSelect}
         />
 
-        {/* Content Editor */}
-        <ContentEditor
-          page={pageContent}
-          onSave={handleSave}
-          saving={saving}
-        />
+        {/* Content Area Conditionally Rendered */}
+        {selectedPageId === 'contact_us' ? (
+            <ContactUsEditor />
+        ) : (selectedPageId === 'faq' || selectedPageId === 'help_center') ? (
+            <FaqHelpManager 
+                type={selectedPageId} 
+                title={PAGE_TYPES.find(p => p.id === selectedPageId)?.title || ''} 
+            />
+        ) : (
+            <ContentEditor
+                page={pageContent}
+                onSave={handleSave}
+                saving={saving}
+            />
+        )}
       </div>
     </div>
   );
