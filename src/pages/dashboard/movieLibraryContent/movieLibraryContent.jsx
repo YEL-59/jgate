@@ -56,13 +56,28 @@ export default function MovieLibraryContent() {
     setIsVideoModalOpen(true);
   };
 
-  const handleSubmit = async (formData) => {
+  const handleSubmit = async (formDataObj) => {
     try {
+      const nativeFormData = new FormData();
+      nativeFormData.append('title', formDataObj.title);
+      nativeFormData.append('description', formDataObj.description || '');
+      
+      // The backend requires the video field even on update.
+      // We pass the string URL if no new file is uploaded.
+      if (formDataObj.video) {
+        nativeFormData.append('video', formDataObj.video);
+      }
+      
+      nativeFormData.append('cat_id', formDataObj.cat_id);
+      if (formDataObj.rating) {
+        nativeFormData.append('rating', formDataObj.rating);
+      }
+
       let response;
       if (selectedMovie) {
-        response = await movieController.updateMovie(selectedMovie.id, formData);
+        response = await movieController.updateMovie(selectedMovie.id, nativeFormData);
       } else {
-        response = await movieController.createMovie(formData);
+        response = await movieController.createMovie(nativeFormData);
       }
 
       if (response && response.success) {
@@ -165,8 +180,8 @@ export default function MovieLibraryContent() {
       </div>
 
       {/* Movie Table */}
-      <div>
-        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+      <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 250px)' }}>
+        <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', minWidth: '800px' }}>
           {filteredMovies && filteredMovies.length > 0 ? (
             <MovieTable
               movies={filteredMovies}

@@ -28,7 +28,11 @@ export const movieService = {
      */
     async createMovie(data) {
         const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
-        return await createMovie(token, data);
+        if (data instanceof FormData) {
+            data.append("token", token);
+            return await createMovie(data);
+        }
+        return { success: false, message: "Invalid payload format" };
     },
 
     /**
@@ -36,7 +40,12 @@ export const movieService = {
      */
     async updateMovie(id, data) {
         const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
-        return await updateMovie(token, id, data);
+        if (data instanceof FormData) {
+            data.append("token", token);
+            data.append("id", id);
+            return await updateMovie(data);
+        }
+        return { success: false, message: "Invalid payload format" };
     },
 
     /**

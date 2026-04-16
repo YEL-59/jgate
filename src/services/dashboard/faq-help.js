@@ -86,6 +86,7 @@ export const toggleFaqOrHelpStatus = async (token, type, id) => {
         const res = await fetch(`https://jgate2000.thesyndicates.team/api/admin/${type}/status/${id}`, {
             method: "POST",
             headers: {
+                "Accept": "application/json",
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             }

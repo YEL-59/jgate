@@ -19,21 +19,16 @@ export const getAdminAllMovies = async (token) => {
     }
 }
 
-export const createMovie = async (token, data) => {
-    try {
-        const formData = new FormData();
-        formData.append("title", data.title);
-        formData.append("description", data.description || "");
-        formData.append("video", data.video);
-        formData.append("cat_id", data.cat_id);
-        if (data.rating) {
-            formData.append("rating", data.rating);
-        }
+export const createMovie = async (formData) => {
+    const token = formData.get("token");
+    formData.delete("token");
 
+    try {
         const res = await fetch(`${BASE_URL}/movie-library-store`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json"
             },
             body: formData
         })
@@ -45,21 +40,18 @@ export const createMovie = async (token, data) => {
     }
 }
 
-export const updateMovie = async (token, id, data) => {
-    try {
-        const formData = new FormData();
-        formData.append("title", data.title);
-        formData.append("description", data.description || "");
-        formData.append("video", data.video);
-        formData.append("cat_id", data.cat_id);
-        if (data.rating) {
-            formData.append("rating", data.rating);
-        }
+export const updateMovie = async (formData) => {
+    const token = formData.get("token");
+    const id = formData.get("id");
+    formData.delete("token");
+    formData.delete("id");
 
+    try {
         const res = await fetch(`${BASE_URL}/movie-library-update/${id}`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json"
             },
             body: formData
         })

@@ -192,9 +192,30 @@ export function FaqHelpManager({ type, title }) {
                                     <button 
                                         onClick={() => handleToggleStatus(item)}
                                         title={item.status === 'active' ? "Deactivate" : "Activate"}
-                                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: item.status === 'active' ? '#10b981' : '#6b7280' }}
+                                        style={{
+                                            position: 'relative',
+                                            width: '40px',
+                                            height: '22px',
+                                            borderRadius: '20px',
+                                            backgroundColor: item.status === 'active' ? '#10b981' : '#e5e7eb',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.3s ease',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '3px',
+                                            marginTop: '2px'
+                                        }}
                                     >
-                                        <Power size={18} />
+                                        <div style={{
+                                            width: '16px',
+                                            height: '16px',
+                                            borderRadius: '50%',
+                                            backgroundColor: 'white',
+                                            transform: item.status === 'active' ? 'translateX(18px)' : 'translateX(0)',
+                                            transition: 'transform 0.3s ease',
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                                        }} />
                                     </button>
                                     <button 
                                         onClick={() => handleOpenModal(item)}

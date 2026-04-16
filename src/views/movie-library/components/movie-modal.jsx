@@ -62,8 +62,9 @@ export function MovieModal({ open, onOpenChange, movie, onSubmit }) {
   }, [open]);
 
   const handleSubmit = () => {
-    if (!formData.title.trim() || !formData.video.trim() || !formData.cat_id) {
-      alert('Please fill in required fields (Title, Video URL, and Category)');
+    const isVideoValid = typeof formData.video === 'string' ? formData.video.trim() : !!formData.video;
+    if (!formData.title.trim() || !isVideoValid || !formData.cat_id) {
+      alert('Please fill in required fields (Title, Video, and Category)');
       return;
     }
     onSubmit(formData);
@@ -156,23 +157,36 @@ export function MovieModal({ open, onOpenChange, movie, onSubmit }) {
             </select>
           </div>
 
-          {/* Video URL */}
+          {/* Video File */}
           <div style={fieldGroupStyle}>
             <label style={labelStyle}>
-              Video URL <span style={{ color: '#EF4444' }}>*</span>
+              Video <span style={{ color: '#EF4444' }}>*</span>
             </label>
-            <div style={iconContainerStyle}><Link size={18} /></div>
+            <div style={iconContainerStyle}><Film size={18} /></div>
             <input
-              type="text"
-              value={formData.video}
-              onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.value }))}
-              placeholder="https://example.com/video.mp4"
-              style={inputStyle}
+              type="file"
+              accept="video/*"
+              onChange={(e) => setFormData(prev => ({ ...prev, video: e.target.files[0] }))}
+              style={{ ...inputStyle, padding: '7px 12px 7px 40px' }}
             />
+            {typeof formData.video === 'string' && formData.video && (
+              <div style={{ marginTop: '12px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e5e5' }}>
+                <video 
+                  controls 
+                  src={formData.video} 
+                  style={{ width: '100%', maxHeight: '200px', display: 'block', backgroundColor: '#000' }}
+                >
+                  Your browser does not support the video tag.
+                </video>
+                <div style={{ padding: '8px 12px', backgroundColor: '#F3F4F6', fontSize: '12px', color: '#4B5563' }}>
+                  Current video. Uploading a new file will replace it.
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Rating & Description Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          {/* <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={fieldGroupStyle}>
               <label style={labelStyle}>Rating (Optional)</label>
               <div style={iconContainerStyle}><Star size={18} /></div>
@@ -187,7 +201,7 @@ export function MovieModal({ open, onOpenChange, movie, onSubmit }) {
                 style={inputStyle}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Description */}
           <div style={fieldGroupStyle}>

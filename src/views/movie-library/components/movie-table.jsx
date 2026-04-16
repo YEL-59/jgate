@@ -20,16 +20,16 @@ export function MovieTable({ movies, onEdit, onDelete, onViewVideo }) {
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>ID</th>
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Movie Info</th>
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Category</th>
-            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Rating</th>
-            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Stats</th>
+          
+          
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Created At</th>
             <th style={{ textAlign: 'right', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {movies.map((movie) => (
+          {movies.map((movie, index) => (
             <tr key={movie.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>#{movie.id}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{index + 1}</td>
               <td style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span style={{ fontSize: '14px', color: '#1a1a1a', fontWeight: '600' }}>{movie.title}</span>
@@ -67,25 +67,10 @@ export function MovieTable({ movies, onEdit, onDelete, onViewVideo }) {
                    color: '#4B5563',
                    fontWeight: '500'
                 }}>
-                  {movie.category?.name || 'N/A'}
+                  {Array.isArray(movie.category) ? movie.category.join(', ') : (movie.category?.name || 'N/A')}
                 </span>
               </td>
-              <td style={{ padding: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Star size={14} fill={movie.rating ? "#FFC107" : "none"} color="#FFC107" />
-                  <span style={{ fontSize: '14px', color: '#1a1a1a' }}>
-                    {movie.rating ? parseFloat(movie.rating).toFixed(1) : '-'}
-                  </span>
-                </div>
-              </td>
-              <td style={{ padding: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '11px', color: '#666666' }}>
-                  <span>Views: {movie.view_count || 0}</span>
-                  <span>Likes: {movie.like_count || 0}</span>
-                  <span>Comments: {movie.comment_count || 0}</span>
-                </div>
-              </td>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{formatDate(movie.created_at)}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{movie.create_at || '-'}</td>
               <td style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                   <button
