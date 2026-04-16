@@ -87,9 +87,7 @@ export default function StaticContent({ staticContent: initialStaticContent, loa
     }
   };
 
-  if (loading && !pageContent) {
-    return <PageLoader message="Fetching static content..." />;
-  }
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -125,6 +123,24 @@ export default function StaticContent({ staticContent: initialStaticContent, loa
                 type={selectedPageId} 
                 title={PAGE_TYPES.find(p => p.id === selectedPageId)?.title || ''} 
             />
+        ) : loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                    <div className="dot-bounce" style={{ animationDelay: '0s' }}></div>
+                    <div className="dot-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="dot-bounce" style={{ animationDelay: '0.4s' }}></div>
+                </div>
+                <style>{`
+                    .dot-bounce {
+                        width: 10px; height: 10px; background-color: #301960; border-radius: 50%;
+                        animation: bounce 1.4s infinite ease-in-out both;
+                    }
+                    @keyframes bounce {
+                        0%, 80%, 100% { transform: scale(0); }
+                        40% { transform: scale(1); }
+                    }
+                `}</style>
+            </div>
         ) : (
             <ContentEditor
                 page={pageContent}

@@ -9,7 +9,8 @@ import {
     createFaqOrHelpData, 
     updateFaqOrHelpData, 
     deleteFaqOrHelpData, 
-    getFaqOrHelpDataById
+    getFaqOrHelpDataById,
+    toggleFaqOrHelpStatus
 } from "@/services/dashboard/faq-help";
 
 export function FaqHelpManager({ type, title }) {
@@ -25,8 +26,8 @@ export function FaqHelpManager({ type, title }) {
 
     const apiType = type === 'faq' ? 'faq' : 'help-center';
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchData = async (showLoading = true) => {
+        if (showLoading) setLoading(true);
         const token = localStorage.getItem("token");
         const res = await getFaqOrHelpData(token, apiType);
         if (res?.success) {
@@ -34,11 +35,11 @@ export function FaqHelpManager({ type, title }) {
         } else {
             toast.error(res?.message || `Failed to fetch ${title}`);
         }
-        setLoading(false);
+        if (showLoading) setLoading(false);
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [apiType]);
 
@@ -95,7 +96,7 @@ export function FaqHelpManager({ type, title }) {
         if (res?.success) {
             toast.success(res.message || `${title} saved successfully!`);
             handleCloseModal();
-            fetchData();
+            fetchData(false);
         } else {
             toast.error(res?.message || `Failed to save ${title}`);
         }
@@ -107,7 +108,7 @@ export function FaqHelpManager({ type, title }) {
         const res = await toggleFaqOrHelpStatus(token, apiType, item.id);
         if (res?.success) {
             toast.success(res.message || "Status updated successfully!");
-            fetchData();
+            fetchData(false);
         } else {
             toast.error(res?.message || "Failed to update status");
         }
@@ -120,7 +121,7 @@ export function FaqHelpManager({ type, title }) {
         const res = await deleteFaqOrHelpData(token, apiType, item.id);
         if (res?.success) {
             toast.success(res.message || "Item deleted successfully!");
-            fetchData();
+            fetchData(false);
         } else {
             toast.error(res?.message || "Failed to delete item");
         }
@@ -141,7 +142,13 @@ export function FaqHelpManager({ type, title }) {
             </div>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>Loading...</div>
+                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                        <div style={{ width: '8px', height: '8px', backgroundColor: '#301960', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0s' }}></div>
+                        <div style={{ width: '8px', height: '8px', backgroundColor: '#301960', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}></div>
+                        <div style={{ width: '8px', height: '8px', backgroundColor: '#301960', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}></div>
+                    </div>
+                </div>
             ) : data.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#666', border: '1px dashed #e5e5e5', borderRadius: '8px' }}>
                     No items found. Click "Add New" to create one.
