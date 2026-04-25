@@ -12,6 +12,7 @@ export const MenuItem = {
   STATIC_CONTENT: 'static-content',
   CATEGORY: 'category',
   MOVIE_LIBRARY: 'movie-library',
+  MAIL_SETTINGS: 'mail-settings',
 };
 
 /**
@@ -37,12 +38,12 @@ export const menuItems = [
     href: '/dashboard/projects',
     icon: 'Film',
   },
-  {
-    id: MenuItem.SUB_ADMIN_ROLES,
-    title: 'Sub-Admin Roles',
-    href: '/dashboard/sub-admin',
-    icon: 'UserCog',
-  },
+  // {
+  //   id: MenuItem.SUB_ADMIN_ROLES,
+  //   title: 'Sub-Admin Roles',
+  //   href: '/dashboard/sub-admin',
+  //   icon: 'UserCog',
+  // },
   {
     id: MenuItem.NOTIFICATIONS,
     title: 'Notifications',
@@ -66,6 +67,12 @@ export const menuItems = [
     title: 'Movie Library',
     href: '/dashboard/movie-library',
     icon: 'Movie',
+  },
+  {
+    id: MenuItem.MAIL_SETTINGS,
+    title: 'Mail Settings',
+    href: '/dashboard/mail-settings',
+    icon: 'Mail',
   },
 ];
 

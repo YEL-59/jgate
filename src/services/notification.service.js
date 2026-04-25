@@ -1,45 +1,44 @@
+
+
 /**
  * Notification Service
- * Handles data fetching for notifications
+ * Handles data fetching and API calls for notifications
  */
 
 export const notificationService = {
   /**
-   * Get recipient groups
+   * Send notification
    */
-  getRecipientGroups() {
-    return [
-      { id: 'all_users', label: 'All Users', count: 1247 },
-      { id: 'actors', label: 'Actors', count: 856 },
-      { id: 'directors', label: 'Directors', count: 234 },
-      { id: 'subscribers', label: 'Subscribers', count: 157 },
-    ];
-  },
+  async sendNotification(data, token) {
+    const formData = new FormData();
+    
+    formData.append("type", data.type);
+    formData.append("title", data.title);
+    formData.append("body", data.body);
+    
+    // Append channels array dynamically
+    if (data.channels && Array.isArray(data.channels)) {
+      data.channels.forEach((channel, index) => {
+        formData.append(`channels[${index}]`, channel);
+      });
+    }
 
-  /**
-   * Get notification templates
-   */
-  getTemplates() {
-    return [
-      {
-        id: 'weekly_challenge',
-        title: 'Weekly Challenge Alert',
-        type: 'push',
-        description: 'A new acting challenge is now live. Show us your skills and compete for top ratings!',
-      },
-      {
-        id: 'new_project',
-        title: 'New Project Notification',
-        type: 'email',
-        description: 'We found a new casting opportunity that matches your interests. Check it out now!',
-      },
-      {
-        id: 'director_verification',
-        title: 'Director Verification',
-        type: 'email',
-        description: 'Congratulations! Your director account is now verified. You can start creating projects.',
-      },
-    ];
-  },
+    try {
+      const res = await fetch("https://jgate2000.thesyndicates.team/api/send-notification", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json"
+        },
+        body: formData
+      });
+      
+      const result = await res.json();
+      return result;
+    } catch (error) {
+      console.log(error);
+      return { success: false, message: error.message };
+    }
+  }
 };
 

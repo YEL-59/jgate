@@ -14,11 +14,12 @@ import {
   Menu,
   X,
   CloudCog,
+  Mail,
 } from "lucide-react";
 import { menuItems } from "@/models/menu.model";
 import { theme } from "@/config/theme.config";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useLogout } from "@/services/auth/auth";
+import { logoutUser } from "@/services/auth/auth";
 
 // Icon mapping
 const iconMap = {
@@ -29,6 +30,7 @@ const iconMap = {
   Bell,
   FileText,
   CloudCog,
+  Mail,
   Movie: Film, // Map 'Movie' to 'Film' icon
 };
 
@@ -46,14 +48,20 @@ export function DashboardSidebar() {
   }, [pathname, isMobile]);
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token")
-    const res = await useLogout(token)
-    console.log("chape backend:",res)
-    if (res.success) {
-      router.push('/login');
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const res = await logoutUser(token);
+        console.log("chape backend:", res);
+      } catch (error) {
+        console.error("Logout API failed:", error);
+      }
     }
+    
+    // Always clear local storage and redirect, even if the API call fails
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push('/login');
   };
 
   const toggleSidebar = () => {

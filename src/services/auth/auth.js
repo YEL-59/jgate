@@ -10,7 +10,7 @@ export const useLogin = async (data) => {
     formData.append("email", data.email)
     formData.append("password", data.password)
     try {
-        const res = await fetch("https://jgate2000.thesyndicates.team/api/login", {
+        const res = await fetch("https://jgate2000.thesyndicates.team/api/admin-login", {
             method: "POST",
             body: formData
         })
@@ -24,7 +24,7 @@ export const useLogin = async (data) => {
 }
 
 
-export const useLogout = async (token) => {
+export const logoutUser = async (token) => {
 
     try {
         const res = await fetch("https://jgate2000.thesyndicates.team/api/logout", {

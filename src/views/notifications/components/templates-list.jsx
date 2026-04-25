@@ -31,11 +31,11 @@ export function TemplatesList({ templates }) {
 
   return (
     <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1a1a1a', marginBottom: '20px', margin: 0 }}>
+      {/* <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1a1a1a', marginBottom: '20px', margin: 0 }}>
         Templates
-      </h2>
+      </h2> */}
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {templates.map((template) => {
           const badgeColors = getTypeBadgeColor(template.type);
           return (
@@ -99,7 +99,7 @@ export function TemplatesList({ templates }) {
             </div>
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 }

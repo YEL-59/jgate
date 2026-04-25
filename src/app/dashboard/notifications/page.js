@@ -1,46 +1,31 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NotificationForm } from "@/views/notifications/components/notification-form";
-import { TemplatesList } from "@/views/notifications/components/templates-list";
-import { notificationController } from "@/controllers/notification.controller";
-import { PageLoader } from "@/components/ui/loading-spinner";
+import { notificationService } from "@/services/notification.service";
+import { toast } from "sonner";
 
 export default function NotificationsPage() {
-  const [recipientGroups, setRecipientGroups] = useState([]);
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    function fetchData() {
-      try {
-        const groups = notificationController.getRecipientGroups();
-        const templateList = notificationController.getTemplates();
-        setRecipientGroups(groups);
-        setTemplates(templateList);
-      } catch (error) {
-        console.error('Failed to fetch notification data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const handleSendNotification = async (notificationData) => {
+    setLoading(true);
     try {
-      await notificationController.sendNotification(notificationData);
-      alert('Notification sent successfully!');
+      const token = localStorage.getItem("token");
+      const result = await notificationService.sendNotification(notificationData, token);
+      
+      if (result.success) {
+        toast.success(result.message || 'Successfully sent notifications');
+      } else {
+        toast.error('Failed to send notification: ' + (result.message || 'Unknown error'));
+      }
     } catch (error) {
       console.error('Failed to send notification:', error);
-      alert('Failed to send notification. Please try again.');
+      toast.error('Failed to send notification. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
-
-  if (loading) {
-    return <PageLoader message="Fetching notification data..." />;
-  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -54,10 +39,10 @@ export default function NotificationsPage() {
         </p>
       </div>
 
-      {/* Main Content - Two Column Layout */}
+      {/* Main Content */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 600px), 1fr))',
         gap: '24px',
         alignItems: 'flex-start',
       }}>
@@ -66,16 +51,26 @@ export default function NotificationsPage() {
           <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1a1a1a', marginBottom: '16px', margin: 0 }}>
             Create Notification
           </h2>
-          <NotificationForm
-            recipientGroups={recipientGroups}
-            onSend={handleSendNotification}
-            defaultType="email"
-          />
-        </div>
-
-        {/* Templates List */}
-        <div>
-          <TemplatesList templates={templates} />
+          <div style={{ position: 'relative' }}>
+            {loading && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255,255,255,0.7)',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '12px'
+              }}>
+                <span style={{ fontWeight: 'bold', color: '#301960' }}>Sending...</span>
+              </div>
+            )}
+            <NotificationForm onSend={handleSendNotification} />
+          </div>
         </div>
       </div>
     </div>
