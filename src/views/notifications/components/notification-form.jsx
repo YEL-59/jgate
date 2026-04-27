@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export function NotificationForm({ onSend }) {
   const [type, setType] = useState('all');
-  const [channels, setChannels] = useState(['database']);
+  const [channels, setChannels] = useState([]);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
@@ -18,11 +18,25 @@ export function NotificationForm({ onSend }) {
   ];
 
   const handleChannelToggle = (channelId) => {
-    setChannels((prev) => 
-      prev.includes(channelId)
-        ? prev.filter(id => id !== channelId)
-        : [...prev, channelId]
-    );
+    setChannels((prev) => {
+      let newChannels;
+      if (prev.includes(channelId)) {
+        // Uncheck
+        newChannels = prev.filter(id => id !== channelId);
+        // If unchecking FCM, also uncheck Database
+        if (channelId === 'fcm') {
+          newChannels = newChannels.filter(id => id !== 'database');
+        }
+      } else {
+        // Check
+        newChannels = [...prev, channelId];
+        // If checking FCM, also auto-check Database
+        if (channelId === 'fcm' && !newChannels.includes('database')) {
+          newChannels.push('database');
+        }
+      }
+      return newChannels;
+    });
   };
 
   const handleSend = () => {
@@ -97,7 +111,9 @@ export function NotificationForm({ onSend }) {
             Channels
           </label>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            {channelOptions.map((option) => (
+            {channelOptions
+              .filter(option => option.id !== 'database' || channels.includes('fcm'))
+              .map((option) => (
               <label key={option.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
