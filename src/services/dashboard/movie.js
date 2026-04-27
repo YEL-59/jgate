@@ -1,4 +1,4 @@
-"use server"
+// Removed "use server" to allow direct client-side uploads and bypass Vercel's payload limits
 
 const BASE_URL = "https://jgate2000.thesyndicates.team/api";
 
