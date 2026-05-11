@@ -19,23 +19,17 @@ export function NotificationForm({ onSend }) {
 
   const handleChannelToggle = (channelId) => {
     setChannels((prev) => {
-      let newChannels;
       if (prev.includes(channelId)) {
-        // Uncheck
-        newChannels = prev.filter(id => id !== channelId);
-        // If unchecking FCM, also uncheck Database
-        if (channelId === 'fcm') {
-          newChannels = newChannels.filter(id => id !== 'database');
-        }
+        // If already selected, uncheck it
+        return [];
       } else {
-        // Check
-        newChannels = [...prev, channelId];
-        // If checking FCM, also auto-check Database
-        if (channelId === 'fcm' && !newChannels.includes('database')) {
-          newChannels.push('database');
+        // Only allow one main channel to be selected at a time
+        // If FCM is selected, automatically include 'database' behind the scenes
+        if (channelId === 'fcm') {
+          return ['fcm', 'database'];
         }
+        return [channelId];
       }
-      return newChannels;
     });
   };
 
@@ -112,7 +106,7 @@ export function NotificationForm({ onSend }) {
           </label>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             {channelOptions
-              .filter(option => option.id !== 'database' || channels.includes('fcm'))
+              .filter(option => option.id !== 'database')
               .map((option) => (
               <label key={option.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
