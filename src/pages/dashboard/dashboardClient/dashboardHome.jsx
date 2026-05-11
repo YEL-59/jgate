@@ -133,7 +133,7 @@ export default function DashboardClient({ data }) {
         <MetricCard
           title="Total Users"
           value={normalizedData.totalUsers}
-          change={getPercentage(normalizedData.totalUsers)}
+          //change={getPercentage(normalizedData.totalUsers)}
           icon="users"
           isPositive={true}
         />
@@ -141,7 +141,7 @@ export default function DashboardClient({ data }) {
         <MetricCard
           title="Total Projects"
           value={normalizedData.totalProjects}
-          change={getPercentage(normalizedData.totalProjects)}
+         // change={getPercentage(normalizedData.totalProjects)}
           icon="projects"
           isPositive={true}
         />
@@ -149,7 +149,7 @@ export default function DashboardClient({ data }) {
         <MetricCard
           title="Total Scenes"
           value={normalizedData.totalScenes}
-          change={getPercentage(normalizedData.totalScenes)}
+         // change={getPercentage(normalizedData.totalScenes)}
           icon="scenes"
           isPositive={true}
         />
@@ -157,7 +157,7 @@ export default function DashboardClient({ data }) {
         <MetricCard
           title="Total Auditions"
           value={normalizedData.totalAuditions}
-          change={getPercentage(normalizedData.totalAuditions)}
+          //change={getPercentage(normalizedData.totalAuditions)}
           icon="auditions"
           isPositive={true}
         />
