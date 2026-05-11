@@ -3,20 +3,20 @@
 import { useEffect, useState } from "react";
 import { MetricCard } from "@/views/dashboard/components/metric-card";
 import { GrowthChart } from "@/views/dashboard/components/growth-chart";
-import { StatusDonutChart } from "@/views/dashboard/components/status-donut-chart";
+import { SceneChallengeChart } from "@/views/dashboard/components/scene-challenge-chart";
 
 const defaultData = {
   growthData: {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [
       {
         label: "Users",
-        data: [1200, 1300, 1400, 1500, 1450, 1600],
+        data: [1200, 1300, 1400, 1500, 1450, 1600, 1600, 1450, 1500, 1400, 1300, 1200],
         color: "#6D28D9",
       },
       {
         label: "Projects",
-        data: [180, 190, 200, 210, 205, 220],
+        data: [180, 190, 200, 210, 205, 220, 220, 205, 210, 200, 190, 180],
         color: "#9333EA",
       },
     ],
@@ -31,10 +31,66 @@ export default function DashboardClient({ data }) {
   // data = full API response
   const dashboardData = data;
   const normalizedData = {
-    totalUsers: dashboardData?.["Total User"] ?? 0,
-    totalProjects: dashboardData?.["Total Project"] ?? 0,
-    totalScenes: dashboardData?.["Total Scene"] ?? 0,
-    totalAuditions: dashboardData?.["Total Audition"] ?? 0,
+    totalUsers: dashboardData?.total_users ?? 0,
+    totalProjects: dashboardData?.total_projects ?? 0,
+    totalScenes: dashboardData?.total_scenes ?? 0,
+    totalAuditions: dashboardData?.total_auditions ?? 0,
+  };
+
+  const userGrowth = dashboardData?.user_growth || [];
+  const allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+  const usersData = allMonths.map(month => {
+    const found = userGrowth.find(item => item.month === month);
+    return found ? found.users : 0;
+  });
+
+  const projectsData = allMonths.map(month => {
+    const found = userGrowth.find(item => item.month === month);
+    return found ? found.projects : 0;
+  });
+
+  const formattedGrowthData = {
+    labels: allMonths,
+    datasets: [
+      {
+        label: "Users",
+        data: usersData,
+        color: "#6D28D9",
+      },
+      {
+        label: "Projects",
+        data: projectsData,
+        color: "#9333EA",
+      },
+    ],
+  };
+
+  const sceneChallengeGrowth = dashboardData?.scene_challenge_growth || [];
+  const scenesData = allMonths.map(month => {
+    const found = sceneChallengeGrowth.find(item => item.month === month);
+    return found ? found.scene_uploads : 0;
+  });
+
+  const challengesData = allMonths.map(month => {
+    const found = sceneChallengeGrowth.find(item => item.month === month);
+    return found ? found.challenge_uploads : 0;
+  });
+
+  const formattedSceneData = {
+    labels: allMonths,
+    datasets: [
+      {
+        label: "Scenes",
+        data: scenesData,
+        color: "#F59E0B",
+      },
+      {
+        label: "Challenges",
+        data: challengesData,
+        color: "#3B82F6",
+      },
+    ],
   };
 
   const totalStats = 
@@ -107,18 +163,9 @@ export default function DashboardClient({ data }) {
         />
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <GrowthChart data={defaultData.growthData} />
-
-        <StatusDonutChart
-          data={{
-            published: defaultData.statusData.percentages.published,
-            draft: defaultData.statusData.percentages.draft,
-            closed: defaultData.statusData.percentages.closed,
-            total: defaultData.statusData.total,
-          }}
-        />
+        <GrowthChart data={formattedGrowthData} />
+        <SceneChallengeChart data={formattedSceneData} />
       </div>
     </div>
   );
