@@ -56,7 +56,7 @@ export function MetricCard({ title, value, change, icon, isPositive }) {
       </div>
 
       {/* Trend */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+      {/* <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
         <TrendIcon
           size={16}
           style={{
@@ -72,7 +72,7 @@ export function MetricCard({ title, value, change, icon, isPositive }) {
         >
           {change >= 0 ? '+' : ''}{change}%
         </span>
-      </div>
+      </div> */}
     </div>
   );
 }

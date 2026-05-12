@@ -273,7 +273,7 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
               <ProjectTable
                 projects={filteredProjects}
                 onView={handleViewProject}
-                onEdit={handleEditProject}
+                // onEdit={handleEditProject}
                 onDelete={handleDeleteProject}
               />
             ) : (
@@ -313,12 +313,12 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
       />
 
       {/* Edit Project Modal */}
-      <EditProjectModal
+      {/* <EditProjectModal
         project={selectedProject}
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         onSave={handleSaveProject}
-      />
+      /> */}
 
       {/* Scene Details Modal */}
       <SceneDetailsModal

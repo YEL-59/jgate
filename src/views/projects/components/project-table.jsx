@@ -25,7 +25,7 @@ export function ProjectTable({ projects, onView, onEdit, onDelete }) {
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Title</th>
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Director</th>
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Status</th>
-            <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Created</th>
+            {/* <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Created</th> */}
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Actions</th>
           </tr>
         </thead>
@@ -50,7 +50,7 @@ export function ProjectTable({ projects, onView, onEdit, onDelete }) {
                     {project.status}
                   </span>
                 </td>
-                <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{project.created}</td>
+                {/* <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{project.created}</td> */}
                 <td style={{ padding: '12px' }}>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <button
@@ -79,7 +79,7 @@ export function ProjectTable({ projects, onView, onEdit, onDelete }) {
                       <Eye size={14} />
                       View
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => onEdit && onEdit(project.id)}
                       style={{
                         display: 'flex',
@@ -104,7 +104,7 @@ export function ProjectTable({ projects, onView, onEdit, onDelete }) {
                     >
                       <Edit size={14} />
                       Edit
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => onDelete && onDelete(project.id)}
                       style={{
