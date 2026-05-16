@@ -2,7 +2,7 @@
 
 import { Check, X } from "lucide-react";
 
-export function UserTable({ users, onToggleStatus, onApprove, onReject }) {
+export function UserTable({ users, onToggleStatus, onApprove, onReject, onView }) {
   const handleToggle = (userId, currentStatus) => {
     if (onToggleStatus) {
       onToggleStatus(userId, currentStatus === 'Active' ? 'Inactive' : 'Active');
@@ -21,12 +21,13 @@ export function UserTable({ users, onToggleStatus, onApprove, onReject }) {
             {users[0]?.status && <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Status</th>}
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Created</th>
             <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>Actions</th>
+          <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: '600', color: '#666666' }}>View</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {users.map((user,index) => (
             <tr key={user.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{user.id}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{index + 1}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{user.name}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{user.email}</td>
               {user.role && (
@@ -144,6 +145,32 @@ export function UserTable({ users, onToggleStatus, onApprove, onReject }) {
                     </button>
                   </div>
                 )}
+              </td>
+              <td style={{ padding: '12px' }}>
+                <button
+                  onClick={() => onView && onView(user.id)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #6366F1',
+                    backgroundColor: 'transparent',
+                    color: '#6366F1',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#6366F1';
+                    e.currentTarget.style.color = 'white';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#6366F1';
+                  }}
+                >
+                  View Details
+                </button>
               </td>
             </tr>
           ))}

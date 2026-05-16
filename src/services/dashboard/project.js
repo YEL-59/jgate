@@ -1,9 +1,9 @@
 "use server"
 
 
-export const useProject = async (token) => {
+export const useProject = async (token, page = 1) => {
     try {
-        const res = await fetch("https://jgate2000.thesyndicates.team/api/admin/all-project", {
+        const res = await fetch(`https://jgate2000.thesyndicates.team/api/admin/all-project?page=${page}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -87,9 +87,9 @@ export const deleteProject = async (token, id) => {
     }
 };
 
-export const getAllScenes = async (token) => {
+export const getAllScenes = async (token, page = 1) => {
     try {
-        const res = await fetch("https://jgate2000.thesyndicates.team/api/admin/all-scene", {
+        const res = await fetch(`https://jgate2000.thesyndicates.team/api/admin/all-scene?page=${page}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

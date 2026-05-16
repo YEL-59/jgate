@@ -4,16 +4,20 @@ import { useState, useEffect } from "react";
 import { UserTabs } from "@/views/users/components/user-tabs";
 import { UserSearch } from "@/views/users/components/user-search";
 import { UserTable } from "@/views/users/components/user-table";
+import { UserDetailsModal } from "@/views/users/components/user-details-modal";
 import { userController } from "@/controllers/user.controller";
-import { updateUserStatus, getPendingDirectors, approveDirector, rejectDirector } from "@/services/dashboard/user";
+import { updateUserStatus, getPendingDirectors, approveDirector, rejectDirector, getUserDetails } from "@/services/dashboard/user";
 import { PageLoader } from "@/components/ui/loading-spinner";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function UserClient({ users, loading }) {
+export default function UserClient({ users, pagination, onPageChange, loading }) {
   const [activeTab, setActiveTab] = useState('all');
   const [allUsers, setAllUsers] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const tabs = [
     { id: 'all', label: 'All Users' },
@@ -138,9 +142,98 @@ export default function UserClient({ users, loading }) {
     }
   };
 
+  const handleViewDetails = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await getUserDetails(token, userId);
+      if (response?.success) {
+        setSelectedUser(response.data.data);
+        setIsViewModalOpen(true);
+      } else {
+        console.error("Failed to fetch user details");
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
   if (loading) {
     return <PageLoader message="Fetching user management data..." />;
   }
+
+  const renderPagination = () => {
+    if (!pagination || !pagination.links || pagination.links.length <= 3) return null;
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderTop: '1px solid #f3f4f6', marginTop: '16px' }}>
+        <div style={{ fontSize: '14px', color: '#6b7280' }}>
+          Showing <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.from || 0}</span> to <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.to || 0}</span> of <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.total || 0}</span> results
+        </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {pagination.links.map((link, index) => {
+            const isPrev = link.label.includes('Previous');
+            const isNext = link.label.includes('Next');
+            
+            const extractPage = (url) => {
+              if (!url) return null;
+              try {
+                const urlObj = new URL(url);
+                return urlObj.searchParams.get('page');
+              } catch (e) {
+                const match = url.match(/page=(\d+)/);
+                return match ? match[1] : null;
+              }
+            };
+            
+            const pageNum = link.page || extractPage(link.url);
+
+            return (
+              <button
+                key={index}
+                disabled={!link.url}
+                onClick={() => {
+                  if (link.url && onPageChange && pageNum) {
+                    onPageChange(Number(pageNum));
+                  }
+                }}
+                style={{
+                  padding: isPrev || isNext ? '6px 8px' : '6px 12px',
+                  borderRadius: '8px',
+                  border: link.active ? '1px solid #1a1a1a' : '1px solid #e5e7eb',
+                  backgroundColor: link.active ? '#1a1a1a' : (link.url ? '#fff' : '#f9fafb'),
+                  color: link.active ? '#fff' : (link.url ? '#1a1a1a' : '#9ca3af'),
+                  cursor: link.url ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: link.active ? '600' : '500',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '36px',
+                  height: '36px',
+                  boxShadow: link.active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+                }}
+                onMouseOver={(e) => {
+                  if (link.url && !link.active) {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (link.url && !link.active) {
+                    e.currentTarget.style.backgroundColor = '#fff';
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                  }
+                }}
+              >
+                {isPrev ? <ChevronLeft size={16} /> : isNext ? <ChevronRight size={16} /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -168,7 +261,9 @@ export default function UserClient({ users, loading }) {
             <UserTable
               users={filteredUsers}
               onToggleStatus={handleToggleStatus}
+              onView={handleViewDetails}
             />
+            {activeTab === 'all' && !searchQuery && renderPagination()}
           </div>
         </div>
       ) : (
@@ -182,6 +277,7 @@ export default function UserClient({ users, loading }) {
                 users={filteredUsers}
                 onApprove={handleApprove}
                 onReject={handleReject}
+                onView={handleViewDetails}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
@@ -191,6 +287,13 @@ export default function UserClient({ users, loading }) {
           </div>
         </div>
       )}
+
+      {/* User Details Modal */}
+      <UserDetailsModal 
+        open={isViewModalOpen}
+        onOpenChange={setIsViewModalOpen}
+        user={selectedUser}
+      />
     </div>
   );
 }

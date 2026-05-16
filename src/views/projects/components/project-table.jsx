@@ -30,11 +30,11 @@ export function ProjectTable({ projects, onView, onEdit, onDelete }) {
           </tr>
         </thead>
         <tbody>
-          {projects.map((project) => {
+          {projects.map((project, index) => {
             const statusColors = getStatusColor(project.status);
             return (
               <tr key={project.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{project.id}</td>
+                <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{index + 1}</td>
                 <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{project.title}</td>
                 <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{project.director}</td>
                 <td style={{ padding: '12px' }}>

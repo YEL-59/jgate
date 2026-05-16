@@ -9,9 +9,9 @@ export const movieController = {
     /**
      * Get all movies
      */
-    async getAllMovies() {
+    async getAllMovies(page = 1) {
         try {
-            return await movieService.getAllMovies();
+            return await movieService.getAllMovies(page);
         } catch (error) {
             console.error('Error fetching movies:', error);
             throw error;

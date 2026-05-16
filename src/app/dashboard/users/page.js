@@ -6,7 +6,10 @@ import { useEffect, useState } from "react";
 
 const userPage = () => {
   const [data, setData] = useState(null);
+  const [paginationInfo, setPaginationInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
   useEffect(() => {
     const fetchDashboarduser = async () => {
       const token = localStorage.getItem("token");
@@ -18,10 +21,11 @@ const userPage = () => {
       }
 
       try {
-        const result = await useUser(token);
+        const result = await useUser(token, currentPage);
         console.log("result", result)
 
-        setData(result?.data.data.data);
+        setData(result?.data?.data?.data || []);
+        setPaginationInfo(result?.data?.data || null);
 
       } catch (error) {
         console.error(error);
@@ -31,10 +35,15 @@ const userPage = () => {
     };
 
     fetchDashboarduser();
-  }, []);
+  }, [currentPage]);
   console.log("useratable data", data)
   return (
-    <UserClient users={data} loading={loading} />
+    <UserClient 
+      users={data} 
+      pagination={paginationInfo} 
+      onPageChange={setCurrentPage} 
+      loading={loading} 
+    />
   );
 };
 

@@ -11,8 +11,9 @@ import { SceneDetailsModal } from "@/views/projects/components/scene-details-mod
 import { projectController } from "@/controllers/project.controller";
 import { getAllScenes, getProjectDetails, updateProject, deleteProject, getSceneDetails, deleteScene } from "@/services/dashboard/project";
 import { toast } from "sonner";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function ProjectsClient({ projects: initialProjects, loading: initialLoading }) {
+export default function ProjectsClient({ projects: initialProjects, projectPagination, onProjectPageChange, loading: initialLoading }) {
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
   const [scenes, setScenes] = useState([]);
@@ -25,6 +26,8 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSceneModalOpen, setIsSceneModalOpen] = useState(false);
+  const [currentScenePage, setCurrentScenePage] = useState(1);
+  const [scenePagination, setScenePagination] = useState(null);
 
   const tabs = [
     { id: 'projects', label: 'Projects' },
@@ -42,10 +45,12 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
                      setFilteredProjects(projects);
                 }
             } else if (activeTab === 'scenes') {
-                const scenesRes = await getAllScenes(token);
+                const scenesRes = await getAllScenes(token, currentScenePage);
                 if (scenesRes?.success) {
-                   setScenes(scenesRes.data.data.data);
-                   setFilteredScenes(scenesRes.data.data.data);
+                   const scenesData = scenesRes.data?.data?.data || scenesRes.data?.data || [];
+                   setScenes(scenesData);
+                   setFilteredScenes(scenesData);
+                   setScenePagination(scenesRes.data?.data || null);
                 }
             }
         } catch (error) {
@@ -64,7 +69,7 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
          // And we should use that initial data.
          fetchData();
     }
-  }, [activeTab]);
+  }, [activeTab, currentScenePage]);
   
   // Initialize projects from props
   useEffect(() => {
@@ -246,6 +251,80 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
     );
   }
 
+  const renderPagination = (pagination, onPageChange) => {
+    if (!pagination || !pagination.links || pagination.links.length <= 3) return null;
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderTop: '1px solid #f3f4f6', marginTop: '16px' }}>
+        <div style={{ fontSize: '14px', color: '#6b7280' }}>
+          Showing <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.from || 0}</span> to <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.to || 0}</span> of <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.total || 0}</span> results
+        </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {pagination.links.map((link, index) => {
+            const isPrev = link.label.includes('Previous');
+            const isNext = link.label.includes('Next');
+            
+            const extractPage = (url) => {
+              if (!url) return null;
+              try {
+                const urlObj = new URL(url);
+                return urlObj.searchParams.get('page');
+              } catch (e) {
+                const match = url.match(/page=(\d+)/);
+                return match ? match[1] : null;
+              }
+            };
+            
+            const pageNum = link.page || extractPage(link.url);
+
+            return (
+              <button
+                key={index}
+                disabled={!link.url}
+                onClick={() => {
+                  if (link.url && onPageChange && pageNum) {
+                    onPageChange(Number(pageNum));
+                  }
+                }}
+                style={{
+                  padding: isPrev || isNext ? '6px 8px' : '6px 12px',
+                  borderRadius: '8px',
+                  border: link.active ? '1px solid #1a1a1a' : '1px solid #e5e7eb',
+                  backgroundColor: link.active ? '#1a1a1a' : (link.url ? '#fff' : '#f9fafb'),
+                  color: link.active ? '#fff' : (link.url ? '#1a1a1a' : '#9ca3af'),
+                  cursor: link.url ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: link.active ? '600' : '500',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '36px',
+                  height: '36px',
+                  boxShadow: link.active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+                }}
+                onMouseOver={(e) => {
+                  if (link.url && !link.active) {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (link.url && !link.active) {
+                    e.currentTarget.style.backgroundColor = '#fff';
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                  }
+                }}
+              >
+                {isPrev ? <ChevronLeft size={16} /> : isNext ? <ChevronRight size={16} /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
@@ -281,6 +360,7 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
                 No projects found
               </div>
             )}
+            {activeTab === 'projects' && !searchQuery && renderPagination(projectPagination, onProjectPageChange)}
           </div>
         </div>
       ) : (
@@ -301,6 +381,7 @@ export default function ProjectsClient({ projects: initialProjects, loading: ini
                 No scenes found
               </div>
             )}
+            {activeTab === 'scenes' && !searchQuery && renderPagination(scenePagination, setCurrentScenePage)}
           </div>
         </div>
       )}

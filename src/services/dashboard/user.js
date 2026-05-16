@@ -1,9 +1,9 @@
 "use server"
 
 
-export const useUser = async (token) => {
+export const useUser = async (token, page = 1) => {
     try {
-        const res = await fetch("https://jgate2000.thesyndicates.team/api/user-management", {
+        const res = await fetch(`https://jgate2000.thesyndicates.team/api/user-management?page=${page}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -88,6 +88,22 @@ export const rejectDirector = async (token, id) => { // id is likely needed for 
     try {
         const res = await fetch(`https://jgate2000.thesyndicates.team/api/user-management/reject-director/${id}`, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const result = await res.json();
+        return result;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getUserDetails = async (token, id) => {
+    try {
+        const res = await fetch(`https://jgate2000.thesyndicates.team/api/user-management/show/${id}`, {
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`

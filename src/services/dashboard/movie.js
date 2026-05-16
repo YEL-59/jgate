@@ -2,9 +2,9 @@
 
 const BASE_URL = "https://jgate2000.thesyndicates.team/api";
 
-export const getAdminAllMovies = async (token) => {
+export const getAdminAllMovies = async (token, page = 1) => {
     try {
-        const res = await fetch(`${BASE_URL}/get-admin-all-movie`, {
+        const res = await fetch(`${BASE_URL}/get-admin-all-movie?page=${page}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

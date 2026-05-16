@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { UserTabs } from "@/views/users/components/user-tabs";
 import { UserSearch } from "@/views/users/components/user-search";
 import { UserTable } from "@/views/users/components/user-table";
+import { UserDetailsModal } from "@/views/users/components/user-details-modal";
 import { userController } from "@/controllers/user.controller";
+import { getUserDetails } from "@/services/dashboard/user";
 
 export default function UsersPage() {
   const [activeTab, setActiveTab] = useState('all');
@@ -13,6 +15,8 @@ export default function UsersPage() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const tabs = [
     { id: 'all', label: 'All Users' },
@@ -51,9 +55,9 @@ export default function UsersPage() {
     const usersToFilter = activeTab === 'all' ? allUsers : pendingApprovals;
     const filtered = usersToFilter.filter(
       (user) =>
-        user.name.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query) ||
-        user.id.toLowerCase().includes(query)
+        user.name?.toLowerCase().includes(query) ||
+        user.email?.toLowerCase().includes(query) ||
+        String(user.id).toLowerCase().includes(query)
     );
     setFilteredUsers(filtered);
   }, [searchQuery, activeTab, allUsers, pendingApprovals]);
@@ -80,6 +84,21 @@ export default function UsersPage() {
     setPendingApprovals((prev) => prev.filter((user) => user.id !== userId));
     // In a real app, you would call an API here
     console.log(`Reject user ${userId}`);
+  };
+
+  const handleViewDetails = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await getUserDetails(token, userId);
+      if (response?.success) {
+        setSelectedUser(response.data.data);
+        setIsViewModalOpen(true);
+      } else {
+        console.error("Failed to fetch user details");
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
   };
 
   if (loading) {
@@ -116,6 +135,7 @@ export default function UsersPage() {
             <UserTable
               users={filteredUsers}
               onToggleStatus={handleToggleStatus}
+              onView={handleViewDetails}
             />
           </div>
         </div>
@@ -130,6 +150,7 @@ export default function UsersPage() {
                 users={filteredUsers}
                 onApprove={handleApprove}
                 onReject={handleReject}
+                onView={handleViewDetails}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
@@ -139,6 +160,13 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
+      {/* User Details Modal */}
+      <UserDetailsModal 
+        open={isViewModalOpen}
+        onOpenChange={setIsViewModalOpen}
+        user={selectedUser}
+      />
     </div>
   );
 }

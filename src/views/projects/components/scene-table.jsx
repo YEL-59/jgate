@@ -17,11 +17,11 @@ export function SceneTable({ scenes, onView, onDelete }) {
           </tr>
         </thead>
         <tbody>
-          {scenes.map((scene,index) => (
+          {scenes.map((scene,index) => (  
             <tr key={scene.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
             
 
-              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{scene.id}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{index + 1}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{scene.title}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{scene?.user?.name}</td>
               {/* <td style={{ padding: '12px' }}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { MovieTable } from "@/views/movie-library/components/movie-table";
 import { MovieModal } from "@/views/movie-library/components/movie-modal";
 import { DeleteMovieModal } from "@/views/movie-library/components/delete-movie-modal";
@@ -12,6 +12,8 @@ import { PageLoader } from "@/components/ui/loading-spinner";
 
 export default function MovieLibraryContent() {
   const [movies, setMovies] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -22,8 +24,9 @@ export default function MovieLibraryContent() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await movieController.getAllMovies();
-      setMovies(data || []);
+      const data = await movieController.getAllMovies(currentPage);
+      setMovies(data?.data || (Array.isArray(data) ? data : []));
+      setPagination(data?.links ? data : null);
     } catch (error) {
       console.error('Failed to fetch movies:', error);
       toast.error('Failed to fetch movie library');
@@ -34,7 +37,7 @@ export default function MovieLibraryContent() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage]);
 
   const handleAddClick = () => {
     setSelectedMovie(null);
@@ -118,6 +121,80 @@ export default function MovieLibraryContent() {
     return <PageLoader message="Fetching movie library..." />;
   }
 
+  const renderPagination = () => {
+    if (!pagination || !pagination.links || pagination.links.length <= 3) return null;
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderTop: '1px solid #f3f4f6', marginTop: '16px' }}>
+        <div style={{ fontSize: '14px', color: '#6b7280' }}>
+          Showing <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.from || 0}</span> to <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.to || 0}</span> of <span style={{ fontWeight: 600, color: '#111827' }}>{pagination.total || 0}</span> results
+        </div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {pagination.links.map((link, index) => {
+            const isPrev = link.label.includes('Previous');
+            const isNext = link.label.includes('Next');
+            
+            const extractPage = (url) => {
+              if (!url) return null;
+              try {
+                const urlObj = new URL(url);
+                return urlObj.searchParams.get('page');
+              } catch (e) {
+                const match = url.match(/page=(\d+)/);
+                return match ? match[1] : null;
+              }
+            };
+            
+            const pageNum = link.page || extractPage(link.url);
+
+            return (
+              <button
+                key={index}
+                disabled={!link.url}
+                onClick={() => {
+                  if (link.url && pageNum) {
+                    setCurrentPage(Number(pageNum));
+                  }
+                }}
+                style={{
+                  padding: isPrev || isNext ? '6px 8px' : '6px 12px',
+                  borderRadius: '8px',
+                  border: link.active ? '1px solid #1a1a1a' : '1px solid #e5e7eb',
+                  backgroundColor: link.active ? '#1a1a1a' : (link.url ? '#fff' : '#f9fafb'),
+                  color: link.active ? '#fff' : (link.url ? '#1a1a1a' : '#9ca3af'),
+                  cursor: link.url ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: link.active ? '600' : '500',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '36px',
+                  height: '36px',
+                  boxShadow: link.active ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+                }}
+                onMouseOver={(e) => {
+                  if (link.url && !link.active) {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (link.url && !link.active) {
+                    e.currentTarget.style.backgroundColor = '#fff';
+                    e.currentTarget.style.borderColor = '#e5e7eb';
+                  }
+                }}
+              >
+                {isPrev ? <ChevronLeft size={16} /> : isNext ? <ChevronRight size={16} /> : <span dangerouslySetInnerHTML={{ __html: link.label }} />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
@@ -194,6 +271,7 @@ export default function MovieLibraryContent() {
               {searchTerm ? 'No movies match your search.' : 'No movies found. Add your first movie to the library.'}
             </div>
           )}
+          {!searchTerm && renderPagination()}
         </div>
       </div>
 

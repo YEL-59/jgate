@@ -14,9 +14,9 @@ export const movieService = {
     /**
      * Get all movies
      */
-    async getAllMovies() {
+    async getAllMovies(page = 1) {
         const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
-        const response = await getAdminAllMovies(token);
+        const response = await getAdminAllMovies(token, page);
         if (response && response.success) {
             return response.data;
         }
