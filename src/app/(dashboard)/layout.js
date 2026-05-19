@@ -1,6 +1,7 @@
 "use client";
 
 import { DashboardSidebar } from "@/views/components/dashboard-sidebar";
+import { DashboardNavbar } from "@/views/components/dashboard-navbar";
 import { theme } from "@/config/theme.config";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -23,6 +24,7 @@ export default function DashboardLayout({ children }) {
         width: '100%',
         minHeight: '100vh',
       }}>
+        <DashboardNavbar />
         {children}
       </main>
     </div>

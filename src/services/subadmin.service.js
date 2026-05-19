@@ -7,9 +7,10 @@ import {
   getSubAdmins,
   createSubAdmin,
   updateSubAdminStatus,
-  updateSubAdminPermissions,
-  updateSubAdminRoles,
-  deleteSubAdmin
+  deleteSubAdmin,
+  getSubAdminDetails,
+  getAvailablePermissions,
+  updateSubAdmin
 } from "./dashboard/subadmin";
 
 export const subAdminService = {
@@ -42,19 +43,11 @@ export const subAdminService = {
   },
 
   /**
-   * Update sub-admin permissions
+   * Update sub-admin name, status, and permissions
    */
-  async updatePermissions(id, permissions) {
+  async updateSubAdmin(id, data) {
     const token = localStorage.getItem("token");
-    return await updateSubAdminPermissions(token, id, permissions);
-  },
-
-  /**
-   * Update sub-admin roles
-   */
-  async updateRoles(id, roles) {
-    const token = localStorage.getItem("token");
-    return await updateSubAdminRoles(token, id, roles);
+    return await updateSubAdmin(token, id, data);
   },
 
   /**
@@ -66,31 +59,27 @@ export const subAdminService = {
   },
 
   /**
-   * Get all available permissions
+   * Get single sub-admin details
    */
-  getAvailablePermissions() {
-    return [
-      'Total.User.View',
-      'Total.Project.View',
-      'Total.Scenes.View',
-      'Total.Audition.View',
-      'User.View',
-      'Project.View',
-      'Project.Edit',
-      'Project.Delete',
-      'Scene.View',
-      'Scene.Delete',
-      'Send.Notification',
-      'Static.Content.Management',
-      'Category.View',
-      'Category.Edit',
-      'Category.Delete',
-      'Category.Create',
-      'Movie.Library.View',
-      'Movie.Library.Edit',
-      'Movie.Library.Delete',
-      'Movie.Library.Create',
-    ].map(p => ({ id: p, label: p }));
+  async getSubAdminDetails(id) {
+    const token = localStorage.getItem("token");
+    const response = await getSubAdminDetails(token, id);
+    if (response && response.success) {
+      return response.data;
+    }
+    return null;
+  },
+
+  /**
+   * Get all available permissions from database
+   */
+  async getAvailablePermissions() {
+    const token = localStorage.getItem("token");
+    const response = await getAvailablePermissions(token);
+    if (response && response.success) {
+      return response.data;
+    }
+    return [];
   },
 
   /**

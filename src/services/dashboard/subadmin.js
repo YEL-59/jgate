@@ -25,16 +25,12 @@ export const createSubAdmin = async (token, data) => {
         formData.append("name", data.name);
         formData.append("email", data.email);
         formData.append("password", data.password);
-
-        if (data.roles && Array.isArray(data.roles)) {
-            data.roles.forEach((role, index) => {
-                formData.append(`role[${index}]`, role);
-            });
-        }
+        formData.append("password_confirmation", data.password_confirmation || data.password);
+        formData.append("role_name", data.role_name);
 
         if (data.permissions && Array.isArray(data.permissions)) {
-            data.permissions.forEach((permission, index) => {
-                formData.append(`permissions[${index}]`, permission);
+            data.permissions.forEach((permissionId, index) => {
+                formData.append(`permissions[${index}]`, permissionId);
             });
         }
 
@@ -131,6 +127,67 @@ export const deleteSubAdmin = async (token, adminId) => {
         return result
     } catch (error) {
         console.log("deleteSubAdmin error:", error)
+        return { success: false, message: error.message }
+    }
+}
+
+export const getSubAdminDetails = async (token, adminId) => {
+    try {
+        const res = await fetch(`${BASE_URL}/sub-admin/show/${adminId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        const result = await res.json()
+        return result
+    } catch (error) {
+        console.log("getSubAdminDetails error:", error)
+        return { success: false, message: error.message }
+    }
+}
+
+export const getAvailablePermissions = async (token) => {
+    try {
+        const res = await fetch(`${BASE_URL}/sub-admin/permissions`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        })
+        const result = await res.json()
+        return result
+    } catch (error) {
+        console.log("getAvailablePermissions error:", error)
+        return { success: false, message: error.message }
+    }
+}
+
+export const updateSubAdmin = async (token, adminId, data) => {
+    try {
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("status", data.status); // "1" or "0"
+
+        if (data.permissions && Array.isArray(data.permissions)) {
+            data.permissions.forEach((permissionId, index) => {
+                formData.append(`permissions[${index}]`, permissionId);
+            });
+        }
+
+        const res = await fetch(`${BASE_URL}/sub-admin/update/${adminId}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+            body: formData
+        })
+        const result = await res.json()
+        return result
+    } catch (error) {
+        console.log("updateSubAdmin error:", error)
         return { success: false, message: error.message }
     }
 }

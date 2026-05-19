@@ -6,29 +6,17 @@ import {
 } from "@/components/ui/dialog";
 import { 
   Mail, 
-  Phone, 
-  Calendar, 
-  MapPin, 
   User, 
-  Briefcase, 
-  Info, 
   BadgeCheck, 
   Clock, 
-  X 
+  X,
+  ShieldAlert,
+  ShieldCheck,
+  CheckCircle2
 } from "lucide-react";
 
-export function UserDetailsModal({ user, open, onOpenChange }) {
-  if (!user) return null;
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+export function SubAdminDetailsModal({ subAdmin, open, onOpenChange }) {
+  if (!subAdmin) return null;
 
   const DetailItem = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50/60 border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
@@ -48,13 +36,13 @@ export function UserDetailsModal({ user, open, onOpenChange }) {
         className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0 border-none bg-white rounded-3xl shadow-2xl overflow-hidden"
         showCloseButton={false}
       >
-        {/* Header/Cover Area with Modern Mesh-like Deep Indigo Gradient and Soft Glow Deco */}
+        {/* Header/Cover Area with Modern Deep Slate-Indigo Gradient and Soft Glow */}
         <div style={{ 
           height: '140px', 
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #282870 50%, #3730a3 100%)', 
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)', 
           position: 'relative'
         }}>
-          {/* Neon Glowing Spheres in Background (Clipped inside this nested layer) */}
+          {/* Neon Glowing Spheres in Background */}
           <div style={{ 
             position: 'absolute', 
             top: 0, 
@@ -71,18 +59,8 @@ export function UserDetailsModal({ user, open, onOpenChange }) {
               width: '180px', 
               height: '180px', 
               borderRadius: '50%', 
-              background: 'radial-gradient(circle, rgba(129,140,248,0.3) 0%, rgba(129,140,248,0) 70%)', 
+              background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, rgba(99,102,241,0) 70%)', 
               filter: 'blur(15px)' 
-            }} />
-            <div style={{ 
-              position: 'absolute', 
-              bottom: '-40px', 
-              left: '20%', 
-              width: '120px', 
-              height: '120px', 
-              borderRadius: '50%', 
-              background: 'radial-gradient(circle, rgba(244,63,94,0.15) 0%, rgba(244,63,94,0) 70%)', 
-              filter: 'blur(12px)' 
             }} />
           </div>
 
@@ -97,24 +75,23 @@ export function UserDetailsModal({ user, open, onOpenChange }) {
 
           {/* Overlapping Profile Info Container */}
           <div style={{ position: 'absolute', bottom: '-45px', left: '24px', display: 'flex', alignItems: 'flex-end', gap: '18px', zIndex: 10 }}>
-            {/* White Ringed Avatar Square/Squircle */}
+            {/* Shield Icon Avatar Placeholder */}
             <div style={{ 
               width: '108px', 
               height: '108px', 
               borderRadius: '24px', 
               border: '4px solid white', 
               overflow: 'hidden', 
-              backgroundColor: '#F3F4F6', 
+              backgroundColor: '#F8FAFC', 
               boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               flexShrink: 0
             }}>
-              {user.profile_photo ? (
-                <img src={user.profile_photo} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#E5E7EB' }}>
-                  <User size={48} color="#9CA3AF" />
-                </div>
-              )}
+              <div className="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-500">
+                <ShieldCheck size={48} />
+              </div>
             </div>
 
             {/* Profile Info Text & Badges */}
@@ -127,29 +104,31 @@ export function UserDetailsModal({ user, open, onOpenChange }) {
                 letterSpacing: '-0.02em', 
                 textShadow: '0 2px 4px rgba(0,0,0,0.15)'
               }}>
-                {user.name}
+                {subAdmin.name}
               </h2>
               
               <div className="flex items-center gap-2 mt-2">
-                {/* Role Badge */}
-                <span className="px-3 py-0.5 rounded-full text-xs font-semibold tracking-wide border border-indigo-200 bg-indigo-50/95 text-indigo-700 shadow-sm backdrop-blur-xs capitalize">
-                  {user.current_mode || "User"}
-                </span>
+                {/* Role Badges */}
+                {subAdmin.roles && subAdmin.roles.map((role, idx) => (
+                  <span key={role.id || role.name || idx} className="px-3 py-0.5 rounded-full text-xs font-semibold tracking-wide border border-indigo-200 bg-indigo-50/95 text-indigo-700 shadow-sm backdrop-blur-xs capitalize">
+                    {role.name || role}
+                  </span>
+                ))}
 
                 {/* Status Badge */}
-                {user.status && (
+                {subAdmin.status && (
                   <span className={`px-3 py-0.5 rounded-full text-xs font-semibold tracking-wide border flex items-center gap-1.5 shadow-sm backdrop-blur-xs transition-all duration-300 ${
-                    user.status === 'Active' 
+                    subAdmin.status === 'Active' 
                       ? 'border-emerald-200 bg-emerald-50/95 text-emerald-700' 
                       : 'border-rose-200 bg-rose-50/95 text-rose-700'
                   }`}>
-                    {user.status === 'Active' && (
+                    {subAdmin.status === 'Active' && (
                       <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
                     )}
-                    {user.status}
+                    {subAdmin.status}
                   </span>
                 )}
               </div>
@@ -161,33 +140,38 @@ export function UserDetailsModal({ user, open, onOpenChange }) {
         <div style={{ padding: '65px 24px 24px 24px' }}>
           {/* Responsively Grid Info Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DetailItem icon={Mail} label="Email Address" value={user.email} />
-            <DetailItem icon={Phone} label="Contact Number" value={user.contact || user.phone} />
-            <DetailItem icon={User} label="Gender" value={user.gender} />
-            <DetailItem icon={Calendar} label="Date of Birth" value={formatDate(user.dob)} />
-            <DetailItem icon={Briefcase} label="Experience Level" value={user.experience_level} />
-            <DetailItem icon={BadgeCheck} label="Director Status" value={user.director_status} />
-            <DetailItem icon={MapPin} label="Address" value={user.address} />
-            <DetailItem icon={Clock} label="Joined Date" value={formatDate(user.created_at)} />
+            <DetailItem icon={Mail} label="Email Address" value={subAdmin.email} />
+            <DetailItem icon={BadgeCheck} label="Account ID" value={`ID: ${subAdmin.id}`} />
+            <DetailItem icon={Clock} label="Joined Date" value={subAdmin.created_at} />
+            <DetailItem icon={Clock} label="Last Updated" value={subAdmin.updated_at} />
           </div>
 
-          {/* Beautiful Biography Section */}
-          {user.bio && (
-            <div className="mt-6 border-t border-slate-100 pt-6">
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                <Info size={16} className="text-indigo-500" /> Biography
-              </h3>
-              <div className="relative p-5 rounded-2xl bg-slate-50/70 border border-slate-100 text-sm text-slate-600 leading-relaxed shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
-                {/* Decorative Quotation Mark */}
-                <div className="absolute top-4 right-4 text-indigo-500/10 pointer-events-none">
-                  <svg className="w-8 h-8 fill-current" viewBox="0 0 24 24">
-                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                  </svg>
-                </div>
-                <p className="relative z-10 italic font-medium text-slate-600/90 leading-relaxed">{user.bio}</p>
+          {/* Permissions List Section */}
+          <div className="mt-6 border-t border-slate-100 pt-6">
+            <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+              <ShieldAlert size={16} className="text-indigo-500" /> Account Permissions
+            </h3>
+            
+            {subAdmin.permissions && subAdmin.permissions.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {subAdmin.permissions.map((perm, idx) => (
+                  <div 
+                    key={perm.id || perm.permission || idx} 
+                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-100 hover:bg-emerald-50/5 transition-all duration-200"
+                  >
+                    <CheckCircle2 size={16} className="text-emerald-500 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-slate-700">
+                      {perm.permission || perm.name || perm}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="p-4 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-xs text-slate-400">
+                No permissions assigned
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

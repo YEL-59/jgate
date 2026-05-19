@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Save, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,15 +12,35 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-export function AddSubAdminModal({ open, onOpenChange, permissions = [], onSubmit }) {
+export function EditSubAdminModal({ open, onOpenChange, subAdmin, permissions = [], onSubmit }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    password_confirmation: '',
     role_name: '',
-    permissions: [],
+    status: '1', // "1" or "0"
+    permissions: [], // array of permission IDs
   });
+
+  // Load sub-admin details when modal opens
+  useEffect(() => {
+    if (subAdmin && open) {
+      const initialPermissionIds = subAdmin.permissions 
+        ? subAdmin.permissions.map(p => p.id) 
+        : [];
+      
+      const roleName = subAdmin.roles && subAdmin.roles.length > 0 
+        ? subAdmin.roles[0].name 
+        : '';
+
+      setFormData({
+        name: subAdmin.name || '',
+        email: subAdmin.email || '',
+        role_name: roleName || '',
+        status: subAdmin.status === 'Active' ? '1' : '0',
+        permissions: initialPermissionIds,
+      });
+    }
+  }, [subAdmin, open]);
 
   const handlePermissionChange = (permissionId, checked) => {
     if (checked) {
@@ -36,23 +56,23 @@ export function AddSubAdminModal({ open, onOpenChange, permissions = [], onSubmi
     }
   };
 
+  const handleStatusToggle = () => {
+    setFormData(prev => ({
+      ...prev,
+      status: prev.status === '1' ? '0' : '1',
+    }));
+  };
+
   const handleSubmit = () => {
-    if (!formData.name || !formData.email || !formData.password || !formData.password_confirmation || !formData.role_name) {
-      alert('Please fill in all required fields (Name, Email, Password, Password Confirmation, and Role)');
+    if (!formData.name) {
+      alert('Please enter a name');
       return;
     }
-    if (formData.password !== formData.password_confirmation) {
-      alert('Passwords do not match');
-      return;
-    }
-    onSubmit(formData);
-    // Reset form
-    setFormData({ name: '', email: '', password: '', password_confirmation: '', role_name: '', permissions: [] });
+    onSubmit(subAdmin.id, formData);
     onOpenChange(false);
   };
 
   const handleClose = () => {
-    setFormData({ name: '', email: '', password: '', password_confirmation: '', role_name: '', permissions: [] });
     onOpenChange(false);
   };
 
@@ -61,10 +81,10 @@ export function AddSubAdminModal({ open, onOpenChange, permissions = [], onSubmi
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 rounded-3xl bg-white border-none shadow-2xl">
         <DialogHeader>
           <DialogTitle style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
-            Add New Sub-Admin
+            Edit Sub-Admin Details
           </DialogTitle>
           <DialogDescription style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>
-            Create a new sub-admin account with customized role names and permissions.
+            Modify sub-admin access settings, name, status, and permissions.
           </DialogDescription>
         </DialogHeader>
         
@@ -86,106 +106,123 @@ export function AddSubAdminModal({ open, onOpenChange, permissions = [], onSubmi
                 border: '1px solid #d1d5db',
                 fontSize: '14px',
                 outline: 'none',
-                backgroundColor: '#f9fafb',
+                backgroundColor: '#ffffff',
               }}
             />
           </div>
 
-          {/* Email */}
+          {/* Email (Disabled / Read-only) */}
           <div>
-            <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', display: 'block' }}>
-              Email Address <span style={{ color: '#ef4444' }}>*</span>
+            <label style={{ fontSize: '13px', fontWeight: '700', color: '#9ca3af', marginBottom: '6px', display: 'block' }}>
+              Email Address (Cannot Update)
             </label>
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              placeholder="e.g. sub@admin4.com"
+              disabled
               style={{
                 width: '100%',
                 padding: '10px 14px',
                 borderRadius: '10px',
-                border: '1px solid #d1d5db',
+                border: '1px solid #e5e7eb',
                 fontSize: '14px',
+                color: '#9ca3af',
+                backgroundColor: '#f3f4f6',
+                cursor: 'not-allowed',
                 outline: 'none',
-                backgroundColor: '#f9fafb',
               }}
             />
           </div>
 
-          {/* Grid for Password & Confirmation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Password */}
-            <div>
-              <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', display: 'block' }}>
-                Password <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                placeholder="Enter password"
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '14px',
-                  outline: 'none',
-                  backgroundColor: '#f9fafb',
-                }}
-              />
-            </div>
-
-            {/* Password Confirmation */}
-            <div>
-              <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', display: 'block' }}>
-                Confirm Password <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <input
-                type="password"
-                value={formData.password_confirmation}
-                onChange={(e) => setFormData(prev => ({ ...prev, password_confirmation: e.target.value }))}
-                placeholder="Confirm password"
-                style={{
-                  width: '100%',
-                  padding: '10px 14px',
-                  borderRadius: '10px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '14px',
-                  outline: 'none',
-                  backgroundColor: '#f9fafb',
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Role Name (Input Field as requested) */}
+          {/* Role Name (Disabled / Read-only) */}
           <div>
-            <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', display: 'block' }}>
-              Role Name <span style={{ color: '#ef4444' }}>*</span>
+            <label style={{ fontSize: '13px', fontWeight: '700', color: '#9ca3af', marginBottom: '6px', display: 'block' }}>
+              Role Name (Cannot Update)
             </label>
             <input
               type="text"
               value={formData.role_name}
-              onChange={(e) => setFormData(prev => ({ ...prev, role_name: e.target.value }))}
-              placeholder="e.g. manager"
+              disabled
               style={{
                 width: '100%',
                 padding: '10px 14px',
                 borderRadius: '10px',
-                border: '1px solid #d1d5db',
+                border: '1px solid #e5e7eb',
                 fontSize: '14px',
+                color: '#9ca3af',
+                backgroundColor: '#f3f4f6',
+                cursor: 'not-allowed',
                 outline: 'none',
-                backgroundColor: '#f9fafb',
               }}
             />
           </div>
 
-          {/* Permissions (Dynamic checkboxes displaying permission.name and toggling permission.id) */}
+          {/* Status (1/0 Toggle switch) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
+            <div>
+              <span style={{ fontSize: '14px', fontWeight: '700', color: '#374151' }}>
+                Account Status
+              </span>
+              <p style={{ fontSize: '12px', color: '#6b7280', margin: '2px 0 0 0' }}>
+                Toggle active or inactive login state for this sub-admin.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {/* Sliding switch */}
+              <button
+                onClick={handleStatusToggle}
+                style={{
+                  position: 'relative',
+                  width: '44px',
+                  height: '24px',
+                  borderRadius: '9999px',
+                  backgroundColor: formData.status === '1' ? '#10B981' : '#D1D5DB',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s ease',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  outline: 'none',
+                }}
+              >
+                <span
+                  style={{
+                    display: 'block',
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    backgroundColor: 'white',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    transform: formData.status === '1' ? 'translateX(22px)' : 'translateX(4px)',
+                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                />
+              </button>
+              
+              {/* status pill label */}
+              <span
+                style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: formData.status === '1' ? '#047857' : '#4B5563',
+                  backgroundColor: formData.status === '1' ? '#D1FAE5' : '#F3F4F6',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  minWidth: '60px',
+                  textAlign: 'center',
+                }}
+              >
+                {formData.status === '1' ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+
+          {/* Permissions */}
           <div>
             <label style={{ fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '10px', display: 'block' }}>
-              Permissions Checkbox
+              Update Permissions
             </label>
             <div style={{ 
               display: 'grid', 
@@ -230,8 +267,8 @@ export function AddSubAdminModal({ open, onOpenChange, permissions = [], onSubmi
             }}
             className="hover:bg-yellow-500 rounded-xl"
           >
-            <Plus size={16} />
-            Create Sub-Admin
+            <Save size={16} />
+            Save Changes
           </Button>
         </DialogFooter>
       </DialogContent>

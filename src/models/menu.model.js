@@ -38,12 +38,12 @@ export const menuItems = [
     href: '/dashboard/projects',
     icon: 'Film',
   },
-  // {
-  //   id: MenuItem.SUB_ADMIN_ROLES,
-  //   title: 'Sub-Admin Roles',
-  //   href: '/dashboard/sub-admin',
-  //   icon: 'UserCog',
-  // },
+  {
+    id: MenuItem.SUB_ADMIN_ROLES,
+    title: 'Sub Admin',
+    href: '/dashboard/sub-admin',
+    icon: 'UserCog',
+  },
   {
     id: MenuItem.NOTIFICATIONS,
     title: 'Notifications',

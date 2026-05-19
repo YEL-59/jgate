@@ -21,8 +21,13 @@ export const subAdminController = {
   /**
    * Get available permissions
    */
-  getAvailablePermissions() {
-    return subAdminService.getAvailablePermissions();
+  async getAvailablePermissions() {
+    try {
+      return await subAdminService.getAvailablePermissions();
+    } catch (error) {
+      console.error('Error fetching permissions:', error);
+      throw error;
+    }
   },
 
   /**
@@ -57,25 +62,13 @@ export const subAdminController = {
   },
 
   /**
-   * Update sub-admin permissions
+   * Update sub-admin name, status, and permissions
    */
-  async updatePermissions(id, permissions) {
+  async updateSubAdmin(id, data) {
     try {
-      return await subAdminService.updatePermissions(id, permissions);
+      return await subAdminService.updateSubAdmin(id, data);
     } catch (error) {
-      console.error('Error updating permissions:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Update sub-admin roles
-   */
-  async updateRoles(id, roles) {
-    try {
-      return await subAdminService.updateRoles(id, roles);
-    } catch (error) {
-      console.error('Error updating roles:', error);
+      console.error('Error updating sub-admin:', error);
       throw error;
     }
   },
@@ -88,6 +81,18 @@ export const subAdminController = {
       return await subAdminService.deleteSubAdmin(id);
     } catch (error) {
       console.error('Error deleting sub-admin:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get single sub-admin details
+   */
+  async getSubAdminDetails(id) {
+    try {
+      return await subAdminService.getSubAdminDetails(id);
+    } catch (error) {
+      console.error('Error fetching sub-admin details:', error);
       throw error;
     }
   },

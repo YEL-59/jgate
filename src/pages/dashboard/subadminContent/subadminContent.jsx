@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { SubAdminTable } from "@/views/subadmin/components/subadmin-table";
 import { AddSubAdminModal } from "@/views/subadmin/components/add-subadmin-modal";
-import { EditPermissionsModal } from "@/views/subadmin/components/edit-permissions-modal";
-import { EditRolesModal } from "@/views/subadmin/components/edit-roles-modal";
 import { DeleteConfirmationModal } from "@/views/subadmin/components/delete-confirmation-modal";
+import { SubAdminDetailsModal } from "@/views/subadmin/components/subadmin-details-modal";
+import { EditSubAdminModal } from "@/views/subadmin/components/edit-subadmin-modal";
 import { subAdminController } from "@/controllers/subadmin.controller";
 import { toast } from "sonner"; // Assuming sonner is used for toast notifications
 import { PageLoader } from "@/components/ui/loading-spinner";
@@ -17,14 +17,16 @@ export default function SubAdminContent() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditPermissionsModalOpen, setIsEditPermissionsModalOpen] = useState(false);
-  const [isEditRolesModalOpen, setIsEditRolesModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedSubAdmin, setSelectedSubAdmin] = useState(null);
+  const [selectedSubAdminDetails, setSelectedSubAdminDetails] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const [adminsData, permissionsData, rolesData] = await Promise.all([
         subAdminController.getAllSubAdmins(),
         Promise.resolve(subAdminController.getAvailablePermissions()),
@@ -37,7 +39,7 @@ export default function SubAdminContent() {
       console.error('Failed to fetch data:', error);
       toast.error('Failed to fetch sub-admins data');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -46,28 +48,79 @@ export default function SubAdminContent() {
   }, []);
 
   const handleToggleStatus = async (adminId) => {
+    // Optimistically toggle status locally for an instant sliding animation response
+    setSubAdmins(prev => prev.map(admin => 
+      admin.id === adminId 
+        ? { ...admin, status: admin.status === 'Active' ? 'Inactive' : 'Active' }
+        : admin
+    ));
+
     try {
       const response = await subAdminController.toggleStatus(adminId);
       if (response && response.success) {
         toast.success(response.message || 'Status updated successfully');
-        fetchData(); // Refresh data
+        fetchData(true); // Silent background refresh to sync with server without showing loader
       } else {
         toast.error(response?.message || 'Failed to update status');
+        // Revert status on API failure
+        setSubAdmins(prev => prev.map(admin => 
+          admin.id === adminId 
+            ? { ...admin, status: admin.status === 'Active' ? 'Inactive' : 'Active' }
+            : admin
+        ));
       }
     } catch (error) {
       toast.error('An error occurred while updating status');
+      // Revert status on network/runtime failure
+      setSubAdmins(prev => prev.map(admin => 
+        admin.id === adminId 
+          ? { ...admin, status: admin.status === 'Active' ? 'Inactive' : 'Active' }
+          : admin
+      ));
     }
   };
 
-  const handleEditPermissions = (admin) => {
+  const handleEdit = (admin) => {
     setSelectedSubAdmin(admin);
-    setIsEditPermissionsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
-  const handleEditRoles = (admin) => {
-    setSelectedSubAdmin(admin);
-    setIsEditRolesModalOpen(true);
+  const handleUpdateSubAdmin = async (adminId, formData) => {
+    try {
+      const response = await subAdminController.updateSubAdmin(adminId, formData);
+      if (response && response.success) {
+        toast.success(response.message || 'Sub-admin updated successfully');
+        setIsEditModalOpen(false);
+        fetchData();
+      } else {
+        toast.error(response?.message || 'Failed to update sub-admin');
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating sub-admin');
+    }
   };
+
+
+
+  const handleViewDetails = async (admin) => {
+    setSelectedSubAdmin(admin);
+    setSelectedSubAdminDetails(admin); // Use table row data as placeholder for immediate open
+    setIsDetailsModalOpen(true);
+    
+    try {
+      setDetailsLoading(true);
+      const data = await subAdminController.getSubAdminDetails(admin.id);
+      if (data) {
+        setSelectedSubAdminDetails(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch sub-admin details:", error);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+
 
   const handleAddSubAdmin = async (formData) => {
     try {
@@ -84,35 +137,7 @@ export default function SubAdminContent() {
     }
   };
 
-  const handleUpdatePermissions = async (adminId, updatedPermissions) => {
-    try {
-      const response = await subAdminController.updatePermissions(adminId, updatedPermissions);
-      if (response && response.success) {
-        toast.success(response.message || 'Permissions updated successfully');
-        setIsEditPermissionsModalOpen(false);
-        fetchData();
-      } else {
-        toast.error(response?.message || 'Failed to update permissions');
-      }
-    } catch (error) {
-      toast.error('An error occurred while updating permissions');
-    }
-  };
 
-  const handleUpdateRoles = async (adminId, updatedRoles) => {
-    try {
-      const response = await subAdminController.updateRoles(adminId, updatedRoles);
-      if (response && response.success) {
-        toast.success(response.message || 'Roles updated successfully');
-        setIsEditRolesModalOpen(false);
-        fetchData();
-      } else {
-        toast.error(response?.message || 'Failed to update roles');
-      }
-    } catch (error) {
-      toast.error('An error occurred while updating roles');
-    }
-  };
 
   const handleDeleteSubAdmin = (admin) => {
     setSelectedSubAdmin(admin);
@@ -187,8 +212,8 @@ export default function SubAdminContent() {
             <SubAdminTable
               subAdmins={subAdmins}
               onToggleStatus={handleToggleStatus}
-              onEditPermissions={handleEditPermissions}
-              onEditRoles={handleEditRoles}
+              onEdit={handleEdit}
+              onViewDetails={handleViewDetails}
               onDelete={handleDeleteSubAdmin}
             />
           ) : (
@@ -208,27 +233,27 @@ export default function SubAdminContent() {
         onSubmit={handleAddSubAdmin}
       />
 
-      <EditPermissionsModal
+      <EditSubAdminModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
         subAdmin={selectedSubAdmin}
-        open={isEditPermissionsModalOpen}
-        onOpenChange={setIsEditPermissionsModalOpen}
         permissions={permissions}
-        onSubmit={handleUpdatePermissions}
+        onSubmit={handleUpdateSubAdmin}
       />
 
-      <EditRolesModal
-        subAdmin={selectedSubAdmin}
-        open={isEditRolesModalOpen}
-        onOpenChange={setIsEditRolesModalOpen}
-        roles={roles}
-        onSubmit={handleUpdateRoles}
-      />
+
 
       <DeleteConfirmationModal
         open={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
         onConfirm={confirmDeleteSubAdmin}
         itemName={selectedSubAdmin?.name}
+      />
+
+      <SubAdminDetailsModal
+        subAdmin={selectedSubAdminDetails}
+        open={isDetailsModalOpen}
+        onOpenChange={setIsDetailsModalOpen}
       />
     </div>
   );

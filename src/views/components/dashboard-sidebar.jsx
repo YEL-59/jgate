@@ -34,11 +34,123 @@ const iconMap = {
   Movie: Film, // Map 'Movie' to 'Film' icon
 };
 
+const permissionMapping = {
+  'user-management': ['User Management'],
+  'projects-scenes': ['Project & Scene Management'],
+  'sub-admin-roles': ['Sub Admin Management'],
+  'notifications': ['Notification Management'],
+  'static-content': ['Static Content Management'],
+  'category': ['Category Management'],
+  'movie-library': ['Movie Library Management'],
+  'mail-settings': ['Setting Management'],
+};
+
 export function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const getCookie = (name) => {
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      const cookieVal = parts.pop().split(';').shift();
+      return decodeURIComponent(cookieVal);
+    }
+    return null;
+  };
+
+  const getUserData = () => {
+    // 1. Try to read from cookies (handles cookie login setups)
+    const cookieNames = ['user', 'user_info', 'login_info', 'permissions'];
+    for (const name of cookieNames) {
+      const cookieVal = getCookie(name);
+      if (cookieVal) {
+        try {
+          const trimmed = cookieVal.trim();
+          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+            return JSON.parse(trimmed);
+          }
+        } catch (e) {
+          console.error(`Error parsing cookie ${name}:`, e);
+        }
+      }
+    }
+
+    // 2. Fallback to localStorage
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        try {
+          return JSON.parse(userStr);
+        } catch (e) {
+          console.error("Error parsing user from localStorage:", e);
+        }
+      }
+    }
+    return null;
+  };
+
+  const [user, setUser] = useState(() => {
+    return getUserData();
+  });
+
+  // Client-side synchronization to prevent SSR mismatch while loading updates
+  useEffect(() => {
+    const resolvedUser = getUserData();
+    if (resolvedUser) {
+      setUser(resolvedUser);
+    }
+  }, []);
+
+  const hasPermission = (item) => {
+    // 1. Dashboard is always visible to everyone
+    if (item.id === 'dashboard') return true;
+
+    // 2. If no user is parsed yet, show it (prevents visual flicker)
+    if (!user) return true;
+
+    // 3. Super Admin Role Bypass (sees everything)
+    // Supports: roles: ["super admin"] (string array) or roles: [{name: "super admin"}] (object array)
+    const roles = user.roles || [];
+    const isSuperAdmin = roles.some(role => {
+      const name = (typeof role === 'string' ? role : (role.name || '')).toLowerCase();
+      return name === 'super admin' || name === 'superadmin' || name === 'admin' || name === 'owner';
+    });
+    if (isSuperAdmin) return true;
+
+    // 4. Extract Permissions safely (supports Spatie string arrays OR active object lists)
+    const userPermissions = user.permissions || user.all_permissions || [];
+    const permissionNames = userPermissions.map(p => {
+      if (typeof p === 'string') return p.toLowerCase();
+      if (p && typeof p === 'object') {
+        return (p.permission || p.name || '').toLowerCase();
+      }
+      return '';
+    }).filter(Boolean);
+
+    const requiredPermissions = permissionMapping[item.id] || [];
+    if (requiredPermissions.length === 0) return true;
+
+    // 5. Intelligent Matcher (Exact match, Substring match, or Stripped Alphanumeric match)
+    return requiredPermissions.some(reqPerm => {
+      const reqLower = reqPerm.toLowerCase();
+      return permissionNames.some(userPerm => {
+        // Direct match
+        if (userPerm === reqLower) return true;
+        
+        // Substring check
+        if (userPerm.includes(reqLower) || reqLower.includes(userPerm)) return true;
+        
+        // Strip out non-alphanumeric chars (e.g. space, &, -, _) to match cleanly
+        const stripStr = (s) => s.replace(/[^a-z0-9]/g, '');
+        if (stripStr(userPerm) === stripStr(reqLower)) return true;
+
+        return false;
+      });
+    });
+  };
 
   // Close sidebar on route change on mobile
   useEffect(() => {
@@ -110,7 +222,7 @@ export function DashboardSidebar() {
 
       {/* Navigation Menu */}
       <div style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-        {menuItems.map((item) => {
+        {menuItems.filter(hasPermission).map((item) => {
           const Icon = iconMap[item.icon] || LayoutDashboard;
           // For Dashboard, only match exact path. For other routes, match exact or child routes
           const isActive = item.href === '/dashboard'

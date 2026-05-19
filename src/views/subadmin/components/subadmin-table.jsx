@@ -1,24 +1,111 @@
 "use client";
 
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 
-export function SubAdminTable({ subAdmins, onToggleStatus, onEditPermissions, onEditRoles, onDelete }) {
-  const formatPermissions = (permissions) => {
-    if (!permissions || permissions.length === 0) return 'No permissions';
-    
-    // permissions is an array of objects: { id, permission }
-    const labels = permissions.map(p => p.permission || p.name || p);
-    
-    if (labels.length <= 2) {
-      return labels.join(', ');
+export function SubAdminTable({ subAdmins, onToggleStatus, onEdit, onViewDetails, onDelete }) {
+  const renderPermissionsList = (permissions) => {
+    if (!permissions || permissions.length === 0) {
+      return (
+        <span style={{ fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic' }}>
+          No permissions
+        </span>
+      );
     }
-    
-    return `${labels.slice(0, 2).join(', ')}, +${labels.length - 2} more`;
+
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxWidth: '380px' }}>
+        {permissions.map((p, idx) => {
+          const name = p.permission || p.name || p;
+          
+          let bg = '#EEF2F6';
+          let color = '#475569';
+          let border = '#E2E8F0';
+
+          if (name.toLowerCase().includes('user')) {
+            bg = '#EEF2FF'; // Indigo
+            color = '#4F46E5';
+            border = '#E0E7FF';
+          } else if (name.toLowerCase().includes('project') || name.toLowerCase().includes('scene')) {
+            bg = '#ECFDF5'; // Emerald
+            color = '#059669';
+            border = '#D1FAE5';
+          } else if (name.toLowerCase().includes('setting') || name.toLowerCase().includes('mail')) {
+            bg = '#FFFBEB'; // Amber
+            color = '#D97706';
+            border = '#FEF3C7';
+          } else if (name.toLowerCase().includes('movie') || name.toLowerCase().includes('library')) {
+            bg = '#FAF5FF'; // Purple
+            color = '#9333EA';
+            border = '#F3E8FF';
+          } else if (name.toLowerCase().includes('notification') || name.toLowerCase().includes('send')) {
+            bg = '#FFF1F2'; // Rose
+            color = '#E11D48';
+            border = '#FFE4E6';
+          }
+
+          return (
+            <span
+              key={p.id || idx}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: '600',
+                backgroundColor: bg,
+                color: color,
+                border: `1px solid ${border}`,
+                boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {name}
+            </span>
+          );
+        })}
+      </div>
+    );
   };
 
-  const formatRoles = (roles) => {
-    if (!roles || roles.length === 0) return 'No roles';
-    return roles.map(r => r.name).join(', ');
+  const renderRolesList = (roles) => {
+    if (!roles || roles.length === 0) {
+      return (
+        <span style={{ fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic' }}>
+          No roles
+        </span>
+      );
+    }
+
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        {roles.map((r, idx) => {
+          const name = r.name || r;
+          
+          return (
+            <span
+              key={r.id || idx}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '3px 10px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: '700',
+                backgroundColor: '#F5F3FF', // Purple-violet tint
+                color: '#6D28D9',
+                border: '1px solid #DDD6FE',
+                textTransform: 'capitalize',
+                boxShadow: '0 1px 2px rgba(109, 40, 217, 0.05)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {name}
+            </span>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -37,52 +124,79 @@ export function SubAdminTable({ subAdmins, onToggleStatus, onEditPermissions, on
         <tbody>
           {subAdmins.map((admin) => (
             <tr key={admin.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{admin.name}</td>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{admin.email}</td>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                  {formatRoles(admin.roles)}
-                </div>
-              </td>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>
-                <span style={{
-                  display: 'inline-block',
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  fontSize: '11px',
-                  backgroundColor: '#F3F4F6',
-                  color: '#4B5563',
-                }}>
-                  {formatPermissions(admin.permissions)}
+              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>
+                <span 
+                  onClick={() => onViewDetails && onViewDetails(admin)}
+                  style={{ cursor: 'pointer', color: '#4F46E5' }}
+                  className="hover:underline font-semibold"
+                >
+                  {admin.name}
                 </span>
               </td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{admin.email}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>
+                {renderRolesList(admin.roles)}
+              </td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>
+                {renderPermissionsList(admin.permissions)}
+              </td>
               <td style={{ padding: '12px' }}>
-                <button
-                  onClick={() => onToggleStatus && onToggleStatus(admin.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: admin.status === 'Active' ? '#10B981' : '#EF4444',
-                    color: 'white',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    minWidth: '80px',
-                    justifyContent: 'center'
-                  }}
-                >
-                  {admin.status}
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {/* Sliding Toggle Switch */}
+                  <button
+                    onClick={() => onToggleStatus && onToggleStatus(admin.id)}
+                    style={{
+                      position: 'relative',
+                      width: '44px',
+                      height: '24px',
+                      borderRadius: '9999px',
+                      backgroundColor: admin.status === 'Active' ? '#10B981' : '#D1D5DB',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s ease',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      outline: 'none',
+                    }}
+                    aria-label={`Toggle status for ${admin.name}`}
+                  >
+                    {/* Sliding Circle */}
+                    <span
+                      style={{
+                        display: 'block',
+                        width: '18px',
+                        height: '18px',
+                        borderRadius: '50%',
+                        backgroundColor: 'white',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        transform: admin.status === 'Active' ? 'translateX(22px)' : 'translateX(4px)',
+                        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      }}
+                    />
+                  </button>
+                  {/* Status Capsule Tag */}
+                  <span
+                    style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: admin.status === 'Active' ? '#047857' : '#4B5563',
+                      backgroundColor: admin.status === 'Active' ? '#D1FAE5' : '#F3F4F6',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      transition: 'all 0.3s ease',
+                      minWidth: '60px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {admin.status}
+                  </span>
+                </div>
               </td>
               <td style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={() => onEditRoles && onEditRoles(admin)}
+                    onClick={() => onViewDetails && onViewDetails(admin)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -97,11 +211,11 @@ export function SubAdminTable({ subAdmins, onToggleStatus, onEditPermissions, on
                       cursor: 'pointer',
                     }}
                   >
-                    <Edit size={14} />
-                    Edit Roles
+                    <Eye size={14} />
+                    View
                   </button>
                   <button
-                    onClick={() => onEditPermissions && onEditPermissions(admin)}
+                    onClick={() => onEdit && onEdit(admin)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -117,8 +231,9 @@ export function SubAdminTable({ subAdmins, onToggleStatus, onEditPermissions, on
                     }}
                   >
                     <Edit size={14} />
-                    Edit Permissions
+                    Edit
                   </button>
+
                   <button
                     onClick={() => {
                       onDelete && onDelete(admin);
