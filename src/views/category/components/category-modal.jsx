@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Save } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +26,8 @@ export function CategoryModal({ open, onOpenChange, category, onSubmit }) {
 
   const handleSubmit = () => {
     if (!name.trim()) {
-      alert('Please enter a category name');
+      // alert('Please enter a category name');
+      toast.error('Please enter a category name');
       return;
     }
     onSubmit({ name });

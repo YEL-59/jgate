@@ -19,7 +19,7 @@ export const useLogin = async (data) => {
         return result
     } catch (error) {
         console.log(error)
-        return error
+        return { success: false, message: error.message || "An unexpected error occurred during login." }
     }
 }
 
@@ -38,6 +38,6 @@ export const logoutUser = async (token) => {
         return result
     } catch (error) {
         console.log(error)
-        return error
+        return { success: false, message: error.message || "An unexpected error occurred during logout." }
     }
 }

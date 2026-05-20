@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -44,7 +45,7 @@ export function EditProjectModal({ project, open, onOpenChange, onSave }) {
     e.preventDefault();
     
     if (!formData.title.trim() || !formData.director.trim()) {
-      alert('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -60,7 +61,7 @@ export function EditProjectModal({ project, open, onOpenChange, onSave }) {
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to save project:', error);
-      alert('Failed to save project. Please try again.');
+      toast.error('Failed to save project. Please try again.');
     } finally {
       setLoading(false);
     }

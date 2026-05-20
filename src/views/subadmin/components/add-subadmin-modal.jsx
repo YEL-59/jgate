@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -38,11 +39,13 @@ export function AddSubAdminModal({ open, onOpenChange, permissions = [], onSubmi
 
   const handleSubmit = () => {
     if (!formData.name || !formData.email || !formData.password || !formData.password_confirmation || !formData.role_name) {
-      alert('Please fill in all required fields (Name, Email, Password, Password Confirmation, and Role)');
+      // alert('Please fill in all required fields (Name, Email, Password, Password Confirmation, and Role)');
+      toast.error('Please fill in all required fields (Name, Email, Password, Password Confirmation, and Role)');
       return;
     }
     if (formData.password !== formData.password_confirmation) {
-      alert('Passwords do not match');
+      // alert('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
     onSubmit(formData);

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Save, Film, AlignLeft, Link, Tag, Star } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -64,7 +65,8 @@ export function MovieModal({ open, onOpenChange, movie, onSubmit }) {
   const handleSubmit = () => {
     const isVideoValid = typeof formData.video === 'string' ? formData.video.trim() : !!formData.video;
     if (!formData.title.trim() || !isVideoValid || !formData.cat_id) {
-      alert('Please fill in required fields (Title, Video, and Category)');
+      // alert('Please fill in required fields (Title, Video, and Category)');
+      toast.error('Please fill in required fields (Title, Video, and Category)');
       return;
     }
     onSubmit(formData);

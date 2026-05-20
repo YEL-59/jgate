@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Save, X } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -65,7 +66,8 @@ export function EditSubAdminModal({ open, onOpenChange, subAdmin, permissions = 
 
   const handleSubmit = () => {
     if (!formData.name) {
-      alert('Please enter a name');
+      // alert('Please enter a name');
+      toast.error('Please enter a name');
       return;
     }
     onSubmit(subAdmin.id, formData);

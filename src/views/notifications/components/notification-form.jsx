@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export function NotificationForm({ onSend }) {
   const [type, setType] = useState('all');
@@ -35,12 +36,12 @@ export function NotificationForm({ onSend }) {
 
   const handleSend = () => {
     if (!title || !body) {
-      alert('Please fill in both title and body');
+      toast.error('Please fill in both title and body');
       return;
     }
 
     if (channels.length === 0) {
-      alert('Please select at least one channel');
+      toast.error('Please select at least one channel');
       return;
     }
 
