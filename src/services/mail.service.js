@@ -1,4 +1,4 @@
-
+import { apiConfig } from "@/config/api";
 
 export const mailService = {
   /**
@@ -6,14 +6,17 @@ export const mailService = {
    */
   async getMailSettings(token) {
     try {
-      const res = await fetch("https://jgate2000.thesyndicates.team/api/mail-settings", {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json"
-        }
-      });
-      
+      const res = await fetch(
+        `${apiConfig.baseURL}${apiConfig.endpoints.mailSettings}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        },
+      );
+
       const result = await res.json();
       return result;
     } catch (error) {
@@ -27,7 +30,7 @@ export const mailService = {
    */
   async updateMailSettings(data, token) {
     const formData = new FormData();
-    
+
     formData.append("mail_mailer", data.mail_mailer || "");
     formData.append("mail_host", data.mail_host || "");
     formData.append("mail_port", data.mail_port || "");
@@ -37,20 +40,23 @@ export const mailService = {
     formData.append("mail_from_address", data.mail_from_address || "");
 
     try {
-      const res = await fetch("https://jgate2000.thesyndicates.team/api/mail-settings", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json"
+      const res = await fetch(
+        `${apiConfig.baseURL}${apiConfig.endpoints.mailSettings}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          body: formData,
         },
-        body: formData
-      });
-      
+      );
+
       const result = await res.json();
       return result;
     } catch (error) {
       console.log(error);
       return { success: false, message: error.message };
     }
-  }
+  },
 };
