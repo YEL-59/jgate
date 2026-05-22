@@ -354,6 +354,7 @@ export default function ProjectsClient({ projects: initialProjects, projectPagin
                 onView={handleViewProject}
                 // onEdit={handleEditProject}
                 onDelete={handleDeleteProject}
+                paginationFrom={projectPagination?.from || 1}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
@@ -375,6 +376,7 @@ export default function ProjectsClient({ projects: initialProjects, projectPagin
                 scenes={filteredScenes}
                 onView={handleViewScene}
                 onDelete={handleDeleteScene}
+                paginationFrom={scenePagination?.from || 1}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>

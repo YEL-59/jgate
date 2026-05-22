@@ -2,7 +2,7 @@
 
 import { Eye, Trash2, Star } from "lucide-react";
 
-export function SceneTable({ scenes, onView, onDelete }) {
+export function SceneTable({ scenes, onView, onDelete, paginationFrom = 1 }) {
   return (
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -21,7 +21,7 @@ export function SceneTable({ scenes, onView, onDelete }) {
             <tr key={scene.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
             
 
-              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{index + 1}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{paginationFrom + index}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{scene.title}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{scene?.user?.name}</td>
               {/* <td style={{ padding: '12px' }}>

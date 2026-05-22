@@ -2,7 +2,7 @@
 
 import { Edit, Trash2, Play, Star } from "lucide-react";
 
-export function MovieTable({ movies, onEdit, onDelete, onViewVideo }) {
+export function MovieTable({ movies, onEdit, onDelete, onViewVideo, paginationFrom = 1 }) {
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -29,7 +29,7 @@ export function MovieTable({ movies, onEdit, onDelete, onViewVideo }) {
         <tbody>
           {movies.map((movie, index) => (
             <tr key={movie.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{index + 1}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{paginationFrom + index}</td>
               <td style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span style={{ fontSize: '14px', color: '#1a1a1a', fontWeight: '600' }}>{movie.title}</span>

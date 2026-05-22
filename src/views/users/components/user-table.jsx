@@ -2,7 +2,7 @@
 
 import { Check, X } from "lucide-react";
 
-export function UserTable({ users, onToggleStatus, onApprove, onReject, onView }) {
+export function UserTable({ users, onToggleStatus, onApprove, onReject, onView, paginationFrom = 1 }) {
   const handleToggle = (userId, currentStatus) => {
     if (onToggleStatus) {
       onToggleStatus(userId, currentStatus === 'Active' ? 'Inactive' : 'Active');
@@ -27,7 +27,7 @@ export function UserTable({ users, onToggleStatus, onApprove, onReject, onView }
         <tbody>
           {users.map((user,index) => (
             <tr key={user.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{index + 1}</td>
+              <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{paginationFrom + index}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{user.name}</td>
               <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{user.email}</td>
               {user.role && (

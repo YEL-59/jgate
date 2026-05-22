@@ -2,7 +2,7 @@
 
 import { Eye, Edit, Trash2 } from "lucide-react";
 
-export function ProjectTable({ projects, onView, onEdit, onDelete }) {
+export function ProjectTable({ projects, onView, onEdit, onDelete, paginationFrom = 1 }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Published':
@@ -34,7 +34,7 @@ export function ProjectTable({ projects, onView, onEdit, onDelete }) {
             const statusColors = getStatusColor(project.status);
             return (
               <tr key={project.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{index + 1}</td>
+                <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a', fontWeight: '500' }}>{paginationFrom + index}</td>
                 <td style={{ padding: '12px', fontSize: '14px', color: '#1a1a1a' }}>{project.title}</td>
                 <td style={{ padding: '12px', fontSize: '14px', color: '#666666' }}>{project.director}</td>
                 <td style={{ padding: '12px' }}>

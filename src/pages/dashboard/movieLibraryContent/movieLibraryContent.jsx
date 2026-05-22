@@ -265,6 +265,7 @@ export default function MovieLibraryContent() {
               onEdit={handleEditClick}
               onDelete={handleDeleteClick}
               onViewVideo={handleViewVideo}
+              paginationFrom={pagination?.from || 1}
             />
           ) : (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>

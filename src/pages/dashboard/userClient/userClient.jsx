@@ -262,6 +262,7 @@ export default function UserClient({ users, pagination, onPageChange, loading })
               users={filteredUsers}
               onToggleStatus={handleToggleStatus}
               onView={handleViewDetails}
+              paginationFrom={pagination?.from || 1}
             />
             {activeTab === 'all' && !searchQuery && renderPagination()}
           </div>
@@ -278,6 +279,7 @@ export default function UserClient({ users, pagination, onPageChange, loading })
                 onApprove={handleApprove}
                 onReject={handleReject}
                 onView={handleViewDetails}
+                paginationFrom={pagination?.from || 1}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
